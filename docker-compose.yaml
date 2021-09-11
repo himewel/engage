@@ -8,6 +8,11 @@ services:
         environment:
             ACCEPT_EULA: Y
             SA_PASSWORD: SuperP4ssword!
+        healthcheck:
+            test: |
+                /opt/mssql-tools/bin/sqlcmd \
+                    -S localhost -U sa -P "$$SA_PASSWORD" \
+                    -Q "SELECT 1" || exit 1
         ports:
             - 1433:1433
 
@@ -19,6 +24,5 @@ services:
             MSSQL_USER: sa
             MSSQL_PASSWD: SuperP4ssword!
             CSV_PATH: /home/mssql/output/csv
-            SQL_PATH: /home/mssql/output/sql
 
 version: '3.8'
