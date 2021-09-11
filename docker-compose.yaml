@@ -1,0 +1,24 @@
+networks:
+    default:
+        name: engage_network
+
+services:
+    mssql:
+        image: mcr.microsoft.com/mssql/server:2019-CU12-ubuntu-20.04
+        environment:
+            ACCEPT_EULA: Y
+            SA_PASSWORD: SuperP4ssword!
+        ports:
+            - 1433:1433
+
+    mssql-setup:
+        build: mssql
+        environment:
+            MSSQL_HOST: mssql
+            MSSQL_PORT: 1433
+            MSSQL_USER: sa
+            MSSQL_PASSWD: SuperP4ssword!
+            CSV_PATH: /home/mssql/output/csv
+            SQL_PATH: /home/mssql/output/sql
+
+version: '3.8'
