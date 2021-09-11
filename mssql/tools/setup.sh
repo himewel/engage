@@ -18,9 +18,6 @@ response=$(/opt/mssql-tools/bin/sqlcmd \
     -h -1 \
     -i /home/mssql/sql/check_schema.sql)
 
-echo "Extracting data from api..."
-python3 /home/mssql/tools/setup.py
-
 echo "Creating tables..."
 /opt/mssql-tools/bin/sqlcmd \
     -S ${hostname} \
@@ -30,14 +27,5 @@ echo "Creating tables..."
     -e \
     -i /home/mssql/sql/create_tables.sql
 
-echo "Ingesting data into mssql tables..."
-ls $CSV_PATH
-for file in ${SQL_PATH}/*.sql; do
-    echo "Running ${file}..."
-    /opt/mssql-tools/bin/sqlcmd \
-        -S ${hostname} \
-        -U ${username} \
-        -P ${password} \
-        -e \
-        -i ${file}
-done
+echo "Ingesting data from api..."
+python3 /home/mssql/tools/setup.py

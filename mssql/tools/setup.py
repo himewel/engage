@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 import pandas as pd
 import requests
@@ -106,7 +107,7 @@ def fix_dtypes(df):
     if int_columns:
         for name in int_columns:
             df[name] = df[name].astype(str)
-            df[name] = df[name].str.replace("\.0", "")
+            df[name] = df[name].str.replace("\.0", "", regex=True)
             df[name] = df[name].astype(int)
     return df
 
@@ -136,27 +137,33 @@ def split_files(df):
             tmp_df.dropna(subset=["activityid"], inplace=True)
 
         tmp_df = fix_dtypes(tmp_df)
-        tmp_df.to_csv(f"{csv_path}/{key}.csv", index=False)
+        tmp_df.to_csv(f"{csv_path}/{key}.csv", index=False, header=False)
 
 
-def create_sql():
-    csv_path = os.getenv("CSV_PATH", ".").replace("/", "\\")
-    sql_path = os.getenv("SQL_PATH", ".")
-    os.makedirs(sql_path, exist_ok=True)
+def ingest_data():
+    csv_path = os.getenv("CSV_PATH", ".")
 
     for key in schema.keys():
-        with open(f"{sql_path}/{key}.sql", "w") as stream:
-            text = f"""
-                TRUNCATE TABLE db.{key};
+        bash_command = f"""
+            /opt/mssql-tools/bin/bcp \
+                 db.{key} in {csv_path}/{key}.csv \
+                 -q -c -t , \
+                 -S ${{MSSQL_HOST}} \
+                 -U ${{MSSQL_USER}} \
+                 -P ${{MSSQL_PASSWD}}
+        """
 
-                BULK INSERT db.{key}
-                FROM '{csv_path}\{key}.csv';
-            """
-            stream.write(text)
+        process = subprocess.Popen(bash_command, shell=True, stdout=subprocess.PIPE)
+        result, error = process.communicate()
+        print(result.decode("utf-8"))
+        if process.returncode != 0:
+            raise Exception(
+                f"BCP insert failed {process.returncode} {error.decode('utf-8')}"
+            )
 
 
 if __name__ == '__main__':
     df = transform_data()
     df = rename_columns(df)
     split_files(df)
-    create_sql()
+    ingest_data()
