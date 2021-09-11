@@ -19,7 +19,6 @@ COPY requirements.txt .
 
 RUN pip3 install --no-cache-dir --requirement ./requirements.txt
 
-COPY sql ./sql
 COPY tools ./tools
 
 CMD [ "bash", "/home/mssql/tools/setup.sh"]

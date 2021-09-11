@@ -10,14 +10,6 @@ while ! nc -z ${hostname} ${port}; do
     sleep 10
 done
 
-echo "Checking if data its already there..."
-response=$(/opt/mssql-tools/bin/sqlcmd \
-    -S ${hostname} \
-    -U ${username} \
-    -P ${password} \
-    -h -1 \
-    -i /home/mssql/sql/check_schema.sql)
-
 echo "Creating tables..."
 /opt/mssql-tools/bin/sqlcmd \
     -S ${hostname} \
@@ -25,7 +17,7 @@ echo "Creating tables..."
     -P ${password} \
     -h -1 \
     -e \
-    -i /home/mssql/sql/create_tables.sql
+    -i /home/mssql/tools/create_tables.sql
 
 echo "Ingesting data from api..."
 python3 /home/mssql/tools/setup.py
