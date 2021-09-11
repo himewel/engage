@@ -135,6 +135,8 @@ def split_files(df):
 
         if key in ["activities", "answers"]:
             tmp_df.dropna(subset=["activityid"], inplace=True)
+        if key == "answers":
+            tmp_df.dropna(subset=["answerdatetime"], inplace=True)
 
         tmp_df = fix_dtypes(tmp_df)
         tmp_df.to_csv(f"{csv_path}/{key}.csv", index=False, header=False)
