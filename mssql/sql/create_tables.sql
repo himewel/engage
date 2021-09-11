@@ -5,6 +5,7 @@ IF NOT EXISTS (
 )
 EXEC('CREATE SCHEMA db');
 
+-- USERS
 IF NOT EXISTS (
     SELECT * FROM sys.tables t
     JOIN sys.schemas s
@@ -13,16 +14,18 @@ IF NOT EXISTS (
         s.name = 'db' AND
         t.name = 'users'
 )
-CREATE TABLE db.users (
-    userId        INTEGER,
-    userStatus    VARCHAR(5),
-    maxScore      INTEGER,
-    score         FLOAT,
-    image         VARCHAR(300),
-    position      INTEGER,
-    myRanking     VARCHAR(5)
-);
+    BEGIN
+        CREATE TABLE db.users (
+            userId        INTEGER,
+            image         VARCHAR(300)
+        );
+    END
+ELSE
+    BEGIN
+        TRUNCATE TABLE db.users;
+    END
 
+-- ROUNDS
 IF NOT EXISTS (
     SELECT * FROM sys.tables t
     JOIN sys.schemas s
@@ -31,40 +34,58 @@ IF NOT EXISTS (
         s.name = 'db' AND
         t.name = 'rounds'
 )
-CREATE TABLE db.rounds (
-    roundId               INTEGER,
-    userId                INTEGER,
-    name                  VARCHAR(300),
-    status                VARCHAR(15),
-    roundscorebonus       INTEGER,
-    lastattemptstatus     VARCHAR(25),
-    approved              INTEGER,
-    waiting               VARCHAR(5),
-    answerdate            DATE,
-    showstars             VARCHAR(5),
-    showscore             VARCHAR(5),
-    stars                 INTEGER
-);
+BEGIN
+        CREATE TABLE db.rounds (
+            roundId               INTEGER,
+            name                  VARCHAR(300),
+            roundscorebonus       INTEGER,
+        );
+    END
+ELSE
+    BEGIN
+        TRUNCATE TABLE db.rounds;
+    END
 
+-- ACTIVITIES
 IF NOT EXISTS (
     SELECT * FROM sys.tables t
     JOIN sys.schemas s
         ON t.schema_id = s.schema_id
     WHERE
         s.name = 'db' AND
-        t.name = 'rounds'
+        t.name = 'activities'
 )
-CREATE TABLE db.rounds (
-    roundId               INTEGER,
-    userId                INTEGER,
-    name                  VARCHAR(300),
-    status                VARCHAR(15),
-    roundscorebonus       INTEGER,
-    lastattemptstatus     VARCHAR(25),
-    approved              INTEGER,
-    waiting               VARCHAR(5),
-    answerdate            DATE,
-    showstars             VARCHAR(5),
-    showscore             VARCHAR(5),
-    stars                 INTEGER
-);
+    BEGIN
+        CREATE TABLE db.activities (
+            activityid      INTEGER,
+            roundid         INTEGER,
+            activityweight  FLOAT
+        );
+    END
+ELSE
+    BEGIN
+        TRUNCATE TABLE db.activities;
+    END
+
+-- ANSWERS
+IF NOT EXISTS (
+    SELECT * FROM sys.tables t
+    JOIN sys.schemas s
+        ON t.schema_id = s.schema_id
+    WHERE
+        s.name = 'db' AND
+        t.name = 'answers'
+)
+    BEGIN
+        CREATE TABLE db.answers (
+            activityid          INTEGER,
+            userid              INTEGER,
+            scoreofaccuracy     FLOAT,
+            answerdatetime      DATETIME,
+            approved            VARCHAR(5)
+        );
+    END
+ELSE
+    BEGIN
+        TRUNCATE TABLE db.users;
+    END
