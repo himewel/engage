@@ -155,7 +155,7 @@ def ingest_data():
     for key in schema.keys():
         bash_command = f"""
             /opt/mssql-tools/bin/bcp \
-                 db.{key} in {csv_path}/{key}.csv \
+                 engagedb.dbo.{key} in {csv_path}/{key}.csv \
                  -q -c -t , \
                  -S ${{MSSQL_HOST}} \
                  -U ${{MSSQL_USER}} \

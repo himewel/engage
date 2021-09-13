@@ -1,9 +1,15 @@
 IF NOT EXISTS (
     SELECT *
-    FROM sys.schemas
-    WHERE name = 'db'
+    FROM sys.databases
+    WHERE name = 'engagedb'
 )
-EXEC('CREATE SCHEMA db');
+BEGIN
+    CREATE DATABASE engagedb;
+END
+GO
+
+USE engagedb;
+EXEC sys.sp_cdc_disable_db;
 
 -- GROUPS
 IF NOT EXISTS (
@@ -11,18 +17,18 @@ IF NOT EXISTS (
     JOIN sys.schemas s
         ON t.schema_id = s.schema_id
     WHERE
-        s.name = 'db' AND
+        s.name = 'dbo' AND
         t.name = 'groups'
 )
     BEGIN
-        CREATE TABLE db.groups (
+        CREATE TABLE dbo.groups (
             groupId        INTEGER,
             groupName      VARCHAR(300)
         );
     END
 ELSE
     BEGIN
-        TRUNCATE TABLE db.groups;
+        TRUNCATE TABLE dbo.groups;
     END
 
 -- USERS
@@ -31,11 +37,11 @@ IF NOT EXISTS (
     JOIN sys.schemas s
         ON t.schema_id = s.schema_id
     WHERE
-        s.name = 'db' AND
+        s.name = 'dbo' AND
         t.name = 'users'
 )
     BEGIN
-        CREATE TABLE db.users (
+        CREATE TABLE dbo.users (
             userId        INTEGER,
             groupId       INTEGER,
             image         VARCHAR(300),
@@ -44,7 +50,7 @@ IF NOT EXISTS (
     END
 ELSE
     BEGIN
-        TRUNCATE TABLE db.users;
+        TRUNCATE TABLE dbo.users;
     END
 
 -- ROUNDS
@@ -53,11 +59,11 @@ IF NOT EXISTS (
     JOIN sys.schemas s
         ON t.schema_id = s.schema_id
     WHERE
-        s.name = 'db' AND
+        s.name = 'dbo' AND
         t.name = 'rounds'
 )
 BEGIN
-        CREATE TABLE db.rounds (
+        CREATE TABLE dbo.rounds (
             roundId               INTEGER,
             name                  VARCHAR(300),
             roundscorebonus       INTEGER,
@@ -65,7 +71,7 @@ BEGIN
     END
 ELSE
     BEGIN
-        TRUNCATE TABLE db.rounds;
+        TRUNCATE TABLE dbo.rounds;
     END
 
 -- ACTIVITIES
@@ -74,11 +80,11 @@ IF NOT EXISTS (
     JOIN sys.schemas s
         ON t.schema_id = s.schema_id
     WHERE
-        s.name = 'db' AND
+        s.name = 'dbo' AND
         t.name = 'activities'
 )
     BEGIN
-        CREATE TABLE db.activities (
+        CREATE TABLE dbo.activities (
             activityid      INTEGER,
             roundid         INTEGER,
             activityweight  FLOAT
@@ -86,7 +92,7 @@ IF NOT EXISTS (
     END
 ELSE
     BEGIN
-        TRUNCATE TABLE db.activities;
+        TRUNCATE TABLE dbo.activities;
     END
 
 -- ANSWERS
@@ -95,11 +101,11 @@ IF NOT EXISTS (
     JOIN sys.schemas s
         ON t.schema_id = s.schema_id
     WHERE
-        s.name = 'db' AND
+        s.name = 'dbo' AND
         t.name = 'answers'
 )
     BEGIN
-        CREATE TABLE db.answers (
+        CREATE TABLE dbo.answers (
             activityid          INTEGER,
             userid              INTEGER,
             scoreofaccuracy     FLOAT,
@@ -109,5 +115,16 @@ IF NOT EXISTS (
     END
 ELSE
     BEGIN
-        TRUNCATE TABLE db.users;
+        TRUNCATE TABLE dbo.users;
     END
+
+-- enable CDC
+IF NOT EXISTS(
+    SELECT * FROM sys.databases
+    WHERE
+        is_cdc_enabled = 1 AND
+        name = 'engagedb'
+)
+BEGIN
+    EXEC sys.sp_cdc_enable_db;
+END
