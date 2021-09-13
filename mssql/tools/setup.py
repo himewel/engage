@@ -17,7 +17,8 @@ schema = {
         "answerdatetime",
         "approved",
     ],
-    "users": ["userid", "image"],
+    "users": ["userid", "groupid", "image", "username"],
+    "groups": ["groupid", "groupname"],
 }
 
 
@@ -68,6 +69,12 @@ def transform_data():
         on=["ID_USUARIO", "ID_ATIVIDADE"],
         how="left",
     )
+
+    full_df["groupid"] = full_df["userid"] % 2
+    full_df["groupname"] = full_df["groupid"].apply(
+        lambda x: "Evens" if x == 0 else "Odds"
+    )
+    full_df["username"] = "User " + full_df["userid"].astype(str)
     return full_df
 
 
