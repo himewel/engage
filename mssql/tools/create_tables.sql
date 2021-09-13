@@ -5,6 +5,26 @@ IF NOT EXISTS (
 )
 EXEC('CREATE SCHEMA db');
 
+-- GROUPS
+IF NOT EXISTS (
+    SELECT * FROM sys.tables t
+    JOIN sys.schemas s
+        ON t.schema_id = s.schema_id
+    WHERE
+        s.name = 'db' AND
+        t.name = 'groups'
+)
+    BEGIN
+        CREATE TABLE db.groups (
+            groupId        INTEGER,
+            groupName      VARCHAR(300)
+        );
+    END
+ELSE
+    BEGIN
+        TRUNCATE TABLE db.groups;
+    END
+
 -- USERS
 IF NOT EXISTS (
     SELECT * FROM sys.tables t
@@ -17,7 +37,9 @@ IF NOT EXISTS (
     BEGIN
         CREATE TABLE db.users (
             userId        INTEGER,
-            image         VARCHAR(300)
+            groupId       INTEGER,
+            image         VARCHAR(300),
+            username      VARCHAR(300),
         );
     END
 ELSE
