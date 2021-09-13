@@ -16,8 +16,10 @@ services:
         ports:
             - 1433:1433
 
-    mssql-setup:
+    mssql-startup:
         build: mssql
+        depends_on:
+            - mssql
         environment:
             MSSQL_HOST: mssql
             MSSQL_PORT: 1433
@@ -25,28 +27,46 @@ services:
             MSSQL_PASSWD: SuperP4ssword!
             CSV_PATH: /home/mssql/output/csv
 
-    dbz-zookeeper:
-        image: debezium/zookeeper:1.6
-        ports:
-            - 2181:2181
-
     dbz-connect:
+        depends_on:
+            - dbz-kafka
+            - dbz-zookeeper
         environment:
-            - GROUP_ID=1
-            - BOOTSTRAP_SERVERS=dbz-kafka:9092
-            - CONFIG_STORAGE_TOPIC=storage.config
-            - OFFSET_STORAGE_TOPIC=storage.offset
-            - STATUS_STORAGE_TOPIC=storage.status
+            GROUP_ID: 1
+            BOOTSTRAP_SERVERS: dbz-kafka:9092
+            CONFIG_STORAGE_TOPIC: storage.config
+            OFFSET_STORAGE_TOPIC: storage.offset
+            STATUS_STORAGE_TOPIC: storage.status
         image: debezium/connect:1.6
         ports:
             - 8083:8083
 
     dbz-kafka:
+        depends_on:
+            - dbz-zookeeper
         environment:
-            - ZOOKEEPER_CONNECT=dbz-zookeeper:2181
-            - CREATE_TOPICS=storage.config:1:1:compact,storage.offset:1:1,storage.status:1:1,connect.sqlserver:1:1
+            ZOOKEEPER_CONNECT: dbz-zookeeper:2181
+            CREATE_TOPICS: |
+                storage.config:1:1:compact,\
+                storage.offset:1:1,\
+                storage.status:1:1,\
+                connect.sqlserver:1:1
         image: debezium/kafka:1.6
         ports:
             - 9092:9092
+
+    dbz-startup:
+        build: debezium
+        depends_on:
+            - dbz-connect
+            - mssql
+        environment:
+            DBZ_SOURCE: mssql:1433
+            DBZ_CONNECT: dbz-connect:8083
+
+    dbz-zookeeper:
+        image: debezium/zookeeper:1.6
+        ports:
+            - 2181:2181
 
 version: '3.8'
