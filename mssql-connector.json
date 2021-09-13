@@ -1,0 +1,15 @@
+{
+    "name": "mssql-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.sqlserver.SqlServerConnector",
+        "database.hostname": "mssql",
+        "database.port": "1433",
+        "database.user": "sa",
+        "database.password": "SuperP4ssword!",
+        "database.dbname": "engagedb",
+        "database.server.name": "engagedb",
+        "table.include.list": "dbo.groups,dbo.users,dbo.rounds,dbo.activities,dbo.answers",
+        "database.history.kafka.bootstrap.servers": "dbz-kafka:9092",
+        "database.history.kafka.topic": "connect.sqlserver"
+    }
+}
