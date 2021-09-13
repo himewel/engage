@@ -14,8 +14,8 @@ This project implements a NoSQL strategy to optimize queries executed on a SQL S
 <img alt="Architecture" src="./docs/architecture.png"/>
 </p>
 
-In principle, our SQL Server replica is built as the following.
+In principle, our SQL Server replica is built as the following schema.
 
 <p align="center">
-<img alt="Schema" src="./docs/schema.png"/>
+<img alt="Schema" src="./docs/schema.png" width=75%/>
 </p>
