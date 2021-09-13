@@ -4,7 +4,6 @@ networks:
 
 services:
     mssql:
-        image: mcr.microsoft.com/mssql/server:2019-CU12-ubuntu-20.04
         environment:
             ACCEPT_EULA: Y
             SA_PASSWORD: SuperP4ssword!
@@ -13,6 +12,7 @@ services:
                 /opt/mssql-tools/bin/sqlcmd \
                     -S localhost -U sa -P "$$SA_PASSWORD" \
                     -Q "SELECT 1" || exit 1
+        image: mcr.microsoft.com/mssql/server:2019-CU12-ubuntu-20.04
         ports:
             - 1433:1433
 
@@ -24,5 +24,29 @@ services:
             MSSQL_USER: sa
             MSSQL_PASSWD: SuperP4ssword!
             CSV_PATH: /home/mssql/output/csv
+
+    dbz-zookeeper:
+        image: debezium/zookeeper:1.6
+        ports:
+            - 2181:2181
+
+    dbz-connect:
+        environment:
+            - GROUP_ID=1
+            - BOOTSTRAP_SERVERS=dbz-kafka:9092
+            - CONFIG_STORAGE_TOPIC=storage.config
+            - OFFSET_STORAGE_TOPIC=storage.offset
+            - STATUS_STORAGE_TOPIC=storage.status
+        image: debezium/connect:1.6
+        ports:
+            - 8083:8083
+
+    dbz-kafka:
+        environment:
+            - ZOOKEEPER_CONNECT=dbz-zookeeper:2181
+            - CREATE_TOPICS=storage.config:1:1:compact,storage.offset:1:1,storage.status:1:1,connect.sqlserver:1:1
+        image: debezium/kafka:1.6
+        ports:
+            - 9092:9092
 
 version: '3.8'
