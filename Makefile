@@ -2,29 +2,29 @@ SHELL:=/bin/bash
 
 .PHONY: storage
 storage:
-	@docker-compose \
+	docker-compose \
 		--file docker-compose.storage.yaml \
 		up --detach
 
 .PHONY: debezium
 debezium:
-	@docker-compose \
+	docker-compose \
 		--file docker-compose.debezium.yaml \
 		up --detach
 
 .PHONY: connect
-connect:
-	@docker-compose \
-		--file docker-compose.connect.yaml \
+streaming:
+	docker-compose \
+		--file docker-compose.streaming.yaml \
 		up --detach
 
 .PHONY: all
-all: storage debezium connect
+all: storage debezium streaming
 
 .PHONY: stop
 stop:
 	docker-compose \
 		--file docker-compose.storage.yaml \
 		--file docker-compose.debezium.yaml \
-		--file docker-compose.connect.yaml \
+		--file docker-compose.streaming.yaml \
 		stop
