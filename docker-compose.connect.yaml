@@ -1,0 +1,14 @@
+networks:
+    default:
+        name: engage_network
+
+services:
+    spark-hadoop:
+        build: spark
+        command: src/sink-to-hadoop.py
+        environment:
+            BROKER_HOSTNAME: dbz-kafka:9092
+        volumes:
+            - ./spark/src:/opt/spark/src
+
+version: '3.8'

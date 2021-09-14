@@ -36,7 +36,7 @@ services:
             - 9870:9870
             - 8020:8020
 
-    hadoop_datanode:
+    hadoop-datanode:
         build: hadoop
         command: hdfs datanode
         depends_on:
@@ -46,11 +46,11 @@ services:
             timeout: 90s
 
     mongodb:
-        image: mongo:5.0.2
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: root
             MONGO_INITDB_DATABASE: engage-collection
+        image: mongo:5.0.2
         ports:
             - 27017:27017
 
