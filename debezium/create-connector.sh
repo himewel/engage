@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-echo "Waiting 30 seconds before startup..."
-sleep 30
+echo "Waiting 60 seconds before startup..."
+sleep 60
 
 echo "Waiting DBZ_SOURCE to launch on ${DBZ_SOURCE}..."
 while ! nc -z ${DBZ_SOURCE//\:/ }; do
