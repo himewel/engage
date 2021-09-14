@@ -8,14 +8,31 @@
 <img alt="Redis" src="https://img.shields.io/badge/redis-%23DC382D.svg?&style=for-the-badge&logo=redis&logoColor=white"/>
 </p>
 
-This project implements a NoSQL strategy to optimize queries executed on a SQL Server. To do it, the following architecture was built. A rest API is available as a data source to create our SQL Server replication. The NoSQL databases are populated with data extracted from the SQL Server with Debezium and structured with Spark. In the end, MongoDB is used as main database for the query executions and Redis serve as cache to store the main results.
-
 <p align="center">
 <img alt="Architecture" src="./docs/architecture.png"/>
 </p>
 
+This project implements a NoSQL strategy to optimize queries executed on a SQL Server. To do it, the presented architecture was built. A rest API is available as a data source to create our SQL Server replication. The NoSQL databases are populated with data extracted from the SQL Server with Debezium and structured with Spark. In the end, MongoDB is used as main database for the query executions and Redis serve as cache to store the main results. In short:
+
+- Debezium: kafka based solution for CDC monitoring from SQL Server;
+- Hadoop: permanent data solution, used to store a data lake;
+- MongoDB: main NoSQL storage for the solution;
+- Redis: in memory database used to cache the main query results from MongoDB;
+- Spark: used to stream data from Debezium, transform and ingest data in the leafs: Hadoop, MongoDB and Redis;
+- SQL Server: data source where transactional data is stored;
+
 In principle, our SQL Server replica is built as the following schema.
 
 <p align="center">
-<img alt="Schema" src="./docs/schema.png" width=75%/>
+<img alt="Schema" src="./docs/schema.png" width=70%/>
 </p>
+
+### How to start
+
+All the code developed is structured in docker containers and docker compose files. As the containers are divided in multiple compose files, the Makefile targets should help to manipulate it.
+
+- `make storage`: start only the storage containers such as Hadoop, SQL Server, Redis and MongoDB.
+- `make debezium`: start only the Debezium services such as Kafka, Zookeeper and Debezium Connect.
+- `make streaming`: start only the Spark jobs such as Hadoop, MongoDB and Redis ingestions.
+- `make all`: start all the containers.
+- `make stop`: stop all the containers.
