@@ -2,6 +2,7 @@ FROM python:3.8-slim
 
 ENV JAVA_HOME "/usr/lib/jvm/java-11-openjdk-amd64"
 ENV SPARK_HOME "/opt/spark"
+ENV HADOOP_CONF_DIR "/etc/hadoop"
 ENV PATH "${PATH}:${JAVA_HOME}/bin:${SPARK_HOME}/bin:${SPARK_HOME}/sbin"
 ENV PYTHONPATH "${SPARK_HOME}/python:${PYTHONPATH}"
 ENV SPARK_NO_DAEMONIZE TRUE
@@ -29,7 +30,8 @@ COPY start.sh ./start.sh
 RUN useradd -m spark \
     && mkdir -p /raw /checkpoint \
     && chown spark /raw /checkpoint \
-    && chmod +x ./start.sh
+    && chmod +x ./start.sh \
+    && echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SPARK_HOME}/conf/spark-env.sh
 
 USER spark
 

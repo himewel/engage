@@ -8,7 +8,10 @@ services:
         command: src/sink-to-hadoop.py
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
+        ports:
+            - 4040:4040
         volumes:
             - ./spark/src:/opt/spark/src
+            - ./config:/etc/hadoop
 
 version: '3.8'

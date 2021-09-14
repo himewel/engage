@@ -28,7 +28,6 @@ WORKDIR ${HADOOP_HOME}
 
 USER hadoop
 
-COPY config /etc/hadoop
 COPY start-namenode.sh .
 
 ENTRYPOINT [ "bash" ]

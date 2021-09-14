@@ -37,8 +37,8 @@ def start_stream(broker_server, topic_name):
     df = transform(df)
 
     process = df.writeStream.trigger(processingTime="5 second").start(
-        path="hdfs://hadoop:8020/landing",
-        checkpointLocation="hdfs://hadoop:8020/checkpoint/landing",
+        path="/landing",
+        checkpointLocation="/checkpoint/landing",
         mode="append",
         partitionBy=["year", "month", "day"],
     )
