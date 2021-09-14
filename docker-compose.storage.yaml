@@ -1,0 +1,62 @@
+networks:
+    default:
+        name: engage_network
+
+services:
+    mssql:
+        environment:
+            ACCEPT_EULA: Y
+            SA_PASSWORD: SuperP4ssword!
+        healthcheck:
+            test: |
+                /opt/mssql-tools/bin/sqlcmd \
+                    -S localhost -U sa -P "$$SA_PASSWORD" \
+                    -Q "SELECT 1" || exit 1
+        image: mcr.microsoft.com/mssql/server:2019-CU12-ubuntu-20.04
+        ports:
+            - 1433:1433
+
+    mssql-startup:
+        build: mssql
+        depends_on:
+            - mssql
+        environment:
+            MSSQL_HOST: mssql
+            MSSQL_PORT: 1433
+            MSSQL_USER: sa
+            MSSQL_PASSWD: SuperP4ssword!
+            CSV_PATH: /home/mssql/output/csv
+
+    hadoop:
+        build: hadoop
+        healthcheck:
+            test: wget --spider localhost:9870 || exit 1
+            timeout: 90s
+        ports:
+            - 9870:9870
+            - 8020:8020
+
+    hadoop_datanode:
+        build: hadoop
+        command: hdfs datanode
+        depends_on:
+            - hadoop
+        healthcheck:
+            test: wget --spider localhost:9864 || exit 1
+            timeout: 90s
+
+    mongodb:
+        image: mongo:5.0.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+            MONGO_INITDB_DATABASE: engage-collection
+        ports:
+            - 27017:27017
+
+    redis:
+        image: redis:6.2.5-alpine
+        ports:
+            - 6379:6379
+
+version: '3.8'
