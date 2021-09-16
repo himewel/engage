@@ -27,12 +27,37 @@ In principle, our SQL Server replica is built as the following schema.
 <img alt="Schema" src="./docs/schema.png" width=70%/>
 </p>
 
-### How to start
+## How to start
 
 All the code developed is structured in docker containers and docker compose files. As the containers are divided in multiple compose files, the Makefile targets should help to manipulate it.
 
-- `make storage`: start only the storage containers such as Hadoop, SQL Server, Redis and MongoDB.
-- `make debezium`: start only the Debezium services such as Kafka, Zookeeper and Debezium Connect.
-- `make streaming`: start only the Spark jobs such as Hadoop, MongoDB and Redis ingestions.
-- `make all`: start all the containers.
-- `make stop`: stop all the containers.
+First of all, `make init` creates the necessary docker requirements. So, to start the containers, `make init` should be run first. In example, to start only the storage containers such as Hadoop, SQL Server, Redis and MongoDB:
+
+```shell
+make init
+make storage
+```
+
+To start only the Debezium services such as Kafka, Zookeeper and Debezium Connect:
+
+```shell
+make init
+make debezium
+```
+
+To start only the Spark jobs such as Hadoop, MongoDB and Redis ingestions:
+
+```shell
+make init
+make streaming
+```
+
+To start all the containers:
+
+```shell
+make init
+make all
+
+# to stop them
+make stop
+```
