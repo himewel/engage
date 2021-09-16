@@ -1,6 +1,7 @@
 networks:
     default:
         name: engage_network
+        external: TRUE
 
 services:
     dbz-connect:
@@ -43,5 +44,14 @@ services:
         image: debezium/zookeeper:1.6
         ports:
             - 2181:2181
+
+    dbz-ui:
+        depends_on:
+            - dbz-connect
+        environment:
+            KAFKA_CONNECT_URI: http://dbz-connect:8083
+        image: debezium/debezium-ui:1.6
+        ports:
+            - 8080:8080
 
 version: '3.8'
