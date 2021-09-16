@@ -54,13 +54,32 @@ services:
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: root
-            MONGO_INITDB_DATABASE: engage-collection
         image: mongo:5.0.2
+        healthcheck:
+            test: |
+                mongo --eval 'db.runCommand("ping").ok' \
+                    localhost:27017/test --quiet
         ports:
             - 27017:27017
 
+    mongodb-ui:
+        image: mongo-express
+        depends_on:
+            - mongodb
+        environment:
+            ME_CONFIG_MONGODB_SERVER: mongodb
+            ME_CONFIG_MONGODB_PORT: 27017
+            ME_CONFIG_MONGODB_AUTH_USERNAME: root
+            ME_CONFIG_MONGODB_AUTH_PASSWORD: root
+        healthcheck:
+            test: wget --spider localhost:8081 || exit 1
+        ports:
+            - 8081:8081
+
     redis:
         image: redis:6.2.5-alpine
+        healthcheck:
+            test: redis-cli ping || exit 1
         ports:
             - 6379:6379
 
