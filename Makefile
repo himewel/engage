@@ -1,5 +1,9 @@
 SHELL:=/bin/bash
 
+.PHONY: init
+init:
+	docker network create engage_network
+
 .PHONY: storage
 storage:
 	docker-compose \

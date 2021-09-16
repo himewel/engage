@@ -1,6 +1,7 @@
 networks:
     default:
         name: engage_network
+        external: TRUE
 
 services:
     mssql:
