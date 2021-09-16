@@ -10,6 +10,8 @@ while ! nc -z ${hostname} ${port}; do
     sleep 10
 done
 
+sleep 5
+
 echo "Creating tables..."
 /opt/mssql-tools/bin/sqlcmd \
     -S ${hostname} \
