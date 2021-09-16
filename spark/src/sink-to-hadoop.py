@@ -2,6 +2,7 @@ import os
 
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
+from pyspark.sql.streaming import StreamingQueryManager
 from pyspark.sql.functions import col, date_format
 
 
@@ -37,8 +38,8 @@ def start_stream(broker_server, topic_name):
     df = transform(df)
 
     process = df.writeStream.trigger(processingTime="5 second").start(
-        path="/landing",
-        checkpointLocation="/checkpoint/landing",
+        path=f"/landing/{topic_name}",
+        checkpointLocation=f"/checkpoint/landing/{topic_name}",
         mode="append",
         partitionBy=["year", "month", "day"],
     )
@@ -49,8 +50,10 @@ def start_stream(broker_server, topic_name):
 if __name__ == '__main__':
     broker_server = os.getenv("BROKER_HOSTNAME")
     table_list = ["groups", "users", "activities", "answers", "rounds"]
-    table_names = [f"engagedb.dbo.{table}" for table in table_list]
-    topic_name = ",".join(table_names)
+    topic_list = [f"engagedb.dbo.{table}" for table in table_list]
 
-    process = start_stream(broker_server, topic_name)
-    process.awaitTermination()
+    for topic_name in table_list:
+        process = start_stream(broker_server, topic_name)
+
+    spark = get_spark()
+    spark.streams.awaitAnyTermination()
