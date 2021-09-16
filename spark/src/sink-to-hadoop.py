@@ -5,6 +5,22 @@ from pyspark.sql import SQLContext
 from pyspark.sql.streaming import StreamingQueryManager
 from pyspark.sql.functions import col, date_format
 
+from schemas import (
+    ActivitiesSchema,
+    AnswersSchema,
+    GroupsSchema,
+    RoundsSchema,
+    UsersSchema,
+)
+
+schema_converter = {
+    "engagedb.dbo.activities": ActivitiesSchema(),
+    "engagedb.dbo.answers": AnswersSchema(),
+    "engagedb.dbo.groups": GroupsSchema(),
+    "engagedb.dbo.rounds": RoundsSchema(),
+    "engagedb.dbo.users": UsersSchema(),
+}
+
 
 def get_spark():
     context = SparkContext.getOrCreate()
@@ -12,9 +28,15 @@ def get_spark():
     return spark
 
 
-def transform(df):
+def transform(df, topic_name):
     for column in ["key", "value"]:
         df = df.withColumn(column, col(column).cast("string"))
+
+    df = schema_converter[topic_name].convert(
+        dataframe=df,
+        source_column="value",
+        destination_column="value",
+    )
 
     df = (
         df.withColumn("year", date_format(col("timestamp"), "yyyy"))
@@ -35,13 +57,17 @@ def start_stream(broker_server, topic_name):
         .load()
     )
 
-    df = transform(df)
+    df = transform(df, topic_name)
 
-    process = df.writeStream.trigger(processingTime="5 second").start(
-        path=f"/landing/{topic_name}",
-        checkpointLocation=f"/checkpoint/landing/{topic_name}",
-        mode="append",
-        partitionBy=["year", "month", "day"],
+    process = (
+        df.writeStream.trigger(processingTime="5 second")
+        .queryName(f"subscribe_{topic_name}")
+        .start(
+            path=f"/landing/{topic_name}",
+            checkpointLocation=f"/checkpoint/landing/{topic_name}",
+            mode="append",
+            partitionBy=["year", "month", "day"],
+        )
     )
 
     return process
@@ -52,7 +78,7 @@ if __name__ == '__main__':
     table_list = ["groups", "users", "activities", "answers", "rounds"]
     topic_list = [f"engagedb.dbo.{table}" for table in table_list]
 
-    for topic_name in table_list:
+    for topic_name in topic_list:
         process = start_stream(broker_server, topic_name)
 
     spark = get_spark()
