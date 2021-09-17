@@ -7,7 +7,7 @@ from . import AbstractSchema
 class GroupsSchema(AbstractSchema):
     def get_schema(self):
         schema = [
-            StructField("groupid", IntegerType()),
-            StructField("name", StringType()),
+            StructField("groupId", IntegerType(), True),
+            StructField("groupName", StringType(), True),
         ]
         return schema

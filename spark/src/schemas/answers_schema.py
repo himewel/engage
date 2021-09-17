@@ -1,9 +1,9 @@
 from pyspark.sql.types import (
-    StructField,
-    StringType,
-    IntegerType,
     DoubleType,
-    TimestampType,
+    IntegerType,
+    LongType,
+    StringType,
+    StructField,
 )
 
 from . import AbstractSchema
@@ -12,10 +12,10 @@ from . import AbstractSchema
 class AnswersSchema(AbstractSchema):
     def get_schema(self):
         schema = [
-            StructField("activityid", IntegerType()),
-            StructField("userid", IntegerType()),
-            StructField("scoreofaccuracy", DoubleType()),
-            StructField("answerdatetime", TimestampType()),
-            StructField("approved", StringType()),
+            StructField("activityId", IntegerType(), True),
+            StructField("userId", IntegerType(), True),
+            StructField("scoreOfAccuracy", DoubleType(), True),
+            StructField("answerDatetime", LongType(), True),
+            StructField("approved", StringType(), True),
         ]
         return schema

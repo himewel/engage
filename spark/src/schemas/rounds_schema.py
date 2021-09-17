@@ -7,8 +7,8 @@ from . import AbstractSchema
 class RoundsSchema(AbstractSchema):
     def get_schema(self):
         schema = [
-            StructField("roundid", IntegerType()),
-            StructField("name", StringType()),
-            StructField("roundscorebonus", DoubleType()),
+            StructField("roundId", IntegerType(), True),
+            StructField("roundName", StringType(), True),
+            StructField("roundScoreBonus", DoubleType(), True),
         ]
         return schema

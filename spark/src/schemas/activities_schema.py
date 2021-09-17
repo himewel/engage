@@ -6,8 +6,8 @@ from . import AbstractSchema
 class ActivitiesSchema(AbstractSchema):
     def get_schema(self):
         schema = [
-            StructField("activityid", IntegerType()),
-            StructField("roundid", IntegerType()),
-            StructField("activityweight", DoubleType()),
+            StructField("activityId", IntegerType(), True),
+            StructField("roundId", IntegerType(), True),
+            StructField("activityWeight", DoubleType(), True),
         ]
         return schema

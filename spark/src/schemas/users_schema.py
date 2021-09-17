@@ -6,9 +6,9 @@ from . import AbstractSchema
 class UsersSchema(AbstractSchema):
     def get_schema(self):
         schema = [
-            StructField("userid", IntegerType()),
-            StructField("groupid", IntegerType()),
-            StructField("name", StringType()),
-            StructField("image", StringType()),
+            StructField("userId", IntegerType(), True),
+            StructField("groupId", IntegerType(), True),
+            StructField("userName", StringType(), True),
+            StructField("image", StringType(), True),
         ]
         return schema

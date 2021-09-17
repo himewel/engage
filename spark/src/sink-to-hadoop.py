@@ -32,10 +32,10 @@ def transform(df, topic_name):
     for column in ["key", "value"]:
         df = df.withColumn(column, col(column).cast("string"))
 
-    df = schema_converter[topic_name].convert(
+    df = schema_converter[topic_name].explode(
         dataframe=df,
-        source_column="value",
-        destination_column="value",
+        src_column="value",
+        dst_column="payload",
     )
 
     df = (
