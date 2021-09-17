@@ -41,7 +41,7 @@ IF NOT EXISTS (SELECT *
            userId   INTEGER NOT NULL PRIMARY KEY,
            groupId  INTEGER NOT NULL FOREIGN KEY REFERENCES groups(groupId),
            image    VARCHAR(300),
-           username VARCHAR(300),
+           userName VARCHAR(300),
         );
   END
 ELSE
@@ -60,8 +60,8 @@ IF NOT EXISTS (SELECT *
       CREATE TABLE dbo.rounds
         (
            roundId         INTEGER NOT NULL PRIMARY KEY,
-           name            VARCHAR(300),
-           roundscorebonus INTEGER,
+           roundName       VARCHAR(300),
+           roundScoreBonus INTEGER,
         );
   END
 ELSE
@@ -81,7 +81,7 @@ IF NOT EXISTS (SELECT *
         (
            activityId     INTEGER NOT NULL PRIMARY KEY,
            roundId        INTEGER NOT NULL FOREIGN KEY REFERENCES rounds(roundId),
-           activityweight FLOAT
+           activityWeight FLOAT
         );
   END
 ELSE
@@ -101,8 +101,8 @@ IF NOT EXISTS (SELECT *
         (
            activityId      INTEGER NOT NULL FOREIGN KEY REFERENCES activities(activityId),
            userId          INTEGER NOT NULL FOREIGN KEY REFERENCES users(userId),
-           scoreofaccuracy FLOAT,
-           answerdatetime  DATETIME,
+           scoreOfAccuracy FLOAT,
+           answerDatetime  DATETIME,
            approved        VARCHAR(5)
         );
   END
