@@ -5,6 +5,10 @@ from . import AbstractSchema
 
 
 class RoundsSchema(AbstractSchema):
+    def get_column_names(self):
+        column_names = ["roundId", "roundName", "roundScoreBonus"]
+        return column_names
+
     def get_schema(self):
         schema = [
             StructField("roundId", IntegerType(), True),

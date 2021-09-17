@@ -10,6 +10,16 @@ from . import AbstractSchema
 
 
 class AnswersSchema(AbstractSchema):
+    def get_column_names(self):
+        column_names = [
+            "activityId",
+            "userId",
+            "scoreOfAccuracy",
+            "answerDatetime",
+            "approved",
+        ]
+        return column_names
+
     def get_schema(self):
         schema = [
             StructField("activityId", IntegerType(), True),

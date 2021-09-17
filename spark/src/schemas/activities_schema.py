@@ -4,6 +4,10 @@ from . import AbstractSchema
 
 
 class ActivitiesSchema(AbstractSchema):
+    def get_column_names(self):
+        column_names = ["activityId", "roundId", "activityWeight"]
+        return column_names
+
     def get_schema(self):
         schema = [
             StructField("activityId", IntegerType(), True),
