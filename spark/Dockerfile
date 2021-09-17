@@ -35,6 +35,11 @@ RUN useradd -m spark \
 
 USER spark
 
-RUN pip3 install --no-cache-dir pyspark==3.1.2
+RUN pip3 install --no-cache-dir pyspark==3.1.2 \
+    && echo "exit()" >> ./install_packages.py \
+    && spark-submit --packages \
+        org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.mongodb.spark:mongo-spark-connector_2.12:3.0.1 \
+        ./install_packages.py \
+    && rm -rf ./install_packages.py
 
 ENTRYPOINT [ "/bin/bash", "./start.sh" ]
