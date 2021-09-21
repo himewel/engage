@@ -5,6 +5,9 @@ from . import AbstractSchema
 
 
 class RoundsSchema(AbstractSchema):
+    def get_columnid(self):
+        return "roundId"
+
     def get_column_names(self):
         column_names = ["roundId", "roundName", "roundScoreBonus"]
         return column_names

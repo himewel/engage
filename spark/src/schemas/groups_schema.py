@@ -5,6 +5,9 @@ from . import AbstractSchema
 
 
 class GroupsSchema(AbstractSchema):
+    def get_columnid(self):
+        return "groupId"
+
     def get_column_names(self):
         column_names = ["groupId", "groupName"]
         return column_names

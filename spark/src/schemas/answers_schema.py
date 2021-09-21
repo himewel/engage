@@ -10,6 +10,9 @@ from . import AbstractSchema
 
 
 class AnswersSchema(AbstractSchema):
+    def get_columnid(self):
+        return None
+
     def get_column_names(self):
         column_names = [
             "activityId",

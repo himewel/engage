@@ -13,6 +13,10 @@ class AbstractSchema(ABC):
     def get_column_names(self):
         pass
 
+    @abstractmethod
+    def get_columnid(self):
+        pass
+
     def get_source_schema(self):
         source_schema = StructType(
             [
