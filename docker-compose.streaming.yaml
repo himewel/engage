@@ -10,6 +10,17 @@ services:
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
         ports:
+            - 4040:4041
+        volumes:
+            - ./spark/src:/opt/spark/src
+            - ./config:/etc/hadoop
+
+    spark-aggregate_answers:
+        build: spark
+        command: src/aggregate_answers.py
+        environment:
+            BROKER_HOSTNAME: dbz-kafka:9092
+        ports:
             - 4040:4040
         volumes:
             - ./spark/src:/opt/spark/src
