@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SCRIPT=$1
+SCRIPT=$@
 
 echo "Waiting kafka broker to launch on ${BROKER_HOSTNAME}..."
 while ! nc -z ${BROKER_HOSTNAME//\:/ }; do

@@ -4,13 +4,13 @@ networks:
         external: TRUE
 
 services:
-    spark-hadoop:
+    spark-raw-sink:
         build: spark
-        command: src/sink-to-hadoop.py
+        command: src/streaming_factory.py raw_streamer
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
         ports:
-            - 4040:4041
+            - 4040:4040
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
@@ -21,7 +21,7 @@ services:
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
         ports:
-            - 4040:4040
+            - 4041:4041
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
