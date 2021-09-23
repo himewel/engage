@@ -1,28 +1,9 @@
-import os
+from pyspark.sql.functions import col, from_unixtime
 
-from pyspark.sql.functions import col, date_format
-
-from .abstract_streamer import AbstractStreamer
+from . import AbstractStreamer
 
 
 class RawStreamer(AbstractStreamer):
-    def transform(self, df, topic_name):
-        for column in ["key", "value"]:
-            df = df.withColumn(column, col(column).cast("string"))
-
-        df = self.schema_classes[topic_name].explode(
-            dataframe=df,
-            src_column="value",
-            dst_column="payload",
-        )
-
-        df = (
-            df.withColumn("year", date_format(col("timestamp"), "yyyy"))
-            .withColumn("month", date_format(col("timestamp"), "MM"))
-            .withColumn("day", date_format(col("timestamp"), "dd"))
-        )
-        return df
-
     def get_process(self, broker_server, topic_name):
         spark = self.get_spark()
 
@@ -34,17 +15,23 @@ class RawStreamer(AbstractStreamer):
             .load()
         )
 
-        df = self.transform(df, topic_name)
+        for column in ["key", "value"]:
+            df = df.withColumn(column, col(column).cast("string"))
 
-        process = (
-            df.writeStream.trigger(processingTime="5 second")
-            .queryName(f"subscribe_{topic_name}")
-            .start(
-                path=f"/raw/{topic_name}",
-                checkpointLocation=f"/checkpoint/raw/{topic_name}",
-                mode="append",
-                partitionBy=["year", "month", "day"],
-            )
+        df = (
+            self.schema_classes[topic_name]
+            .explode(dataframe=df, src_column="value", dst_column="payload")
+            .select("payload.after.*", "timestamp")
+        )
+
+        long_columns = [field[0] for field in df.dtypes if field[1] == "bigint"]
+        for column in long_columns:
+            df = df.withColumn(column, from_unixtime(col(column) / 1000))
+
+        process = df.writeStream.queryName(f"subscribe_{topic_name}").start(
+            path=f"/raw/{topic_name}",
+            checkpointLocation=f"/checkpoint/raw/{topic_name}",
+            mode="append",
         )
 
         return process
