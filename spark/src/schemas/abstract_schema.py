@@ -17,6 +17,9 @@ class AbstractSchema(ABC):
     def get_columnid(self):
         pass
 
+    def get_raw_schema(self):
+        return self.get_schema() + [StructField("timestamp", LongType(), True)]
+
     def get_source_schema(self):
         source_schema = StructType(
             [
