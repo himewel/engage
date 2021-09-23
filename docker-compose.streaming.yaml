@@ -9,6 +9,9 @@ services:
         command: src/streaming_factory.py raw_streamer
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
+            SPARK_UI_PORT: 4040
+        ports:
+            - 4040:4040
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
@@ -18,6 +21,9 @@ services:
         command: src/streaming_factory.py trusted_streamer
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
+            SPARK_UI_PORT: 4041
+        ports:
+            - 4041:4041
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
