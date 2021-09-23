@@ -9,30 +9,15 @@ services:
         command: src/streaming_factory.py raw_streamer
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
-        ports:
-            - 4040:4040
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
 
-    spark-join-users:
+    spark-trusted-sink:
         build: spark
-        command: src/streaming_factory.py join_users_streamer
+        command: src/streaming_factory.py trusted_streamer
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
-        ports:
-            - 4042:4042
-        volumes:
-            - ./spark/src:/opt/spark/src
-            - ./config:/etc/hadoop
-
-    spark-aggregate_answers:
-        build: spark
-        command: src/aggregate_answers.py
-        environment:
-            BROKER_HOSTNAME: dbz-kafka:9092
-        ports:
-            - 4041:4041
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
