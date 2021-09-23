@@ -5,7 +5,7 @@ from . import AbstractSchema
 
 class ActivitiesSchema(AbstractSchema):
     def get_columnid(self):
-        return "activityId"
+        return ["activityId"]
 
     def get_column_names(self):
         column_names = ["activityId", "roundId", "activityWeight"]

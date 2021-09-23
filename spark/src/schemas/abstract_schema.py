@@ -1,7 +1,13 @@
 from abc import ABC, abstractmethod
 
 from pyspark.sql.functions import col, from_json, get_json_object
-from pyspark.sql.types import LongType, StructField, StructType, StringType
+from pyspark.sql.types import (
+    LongType,
+    StructField,
+    StructType,
+    StringType,
+    TimestampType,
+)
 
 
 class AbstractSchema(ABC):
@@ -17,8 +23,11 @@ class AbstractSchema(ABC):
     def get_columnid(self):
         pass
 
+    def get_orderby(self):
+        return [col("timestamp").desc()]
+
     def get_raw_schema(self):
-        return self.get_schema() + [StructField("timestamp", LongType(), True)]
+        return self.get_schema() + [StructField("timestamp", TimestampType(), True)]
 
     def get_source_schema(self):
         source_schema = StructType(
