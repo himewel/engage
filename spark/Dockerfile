@@ -28,8 +28,8 @@ WORKDIR ${SPARK_HOME}
 COPY start.sh ./start.sh
 
 RUN useradd -m spark \
-    && mkdir -p /raw /checkpoint \
-    && chown spark /raw /checkpoint \
+    && mkdir -p /raw /checkpoint /trusted /refined \
+    && chown spark /raw /checkpoint /trusted /refined \
     && chmod +x ./start.sh \
     && echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SPARK_HOME}/conf/spark-env.sh
 
