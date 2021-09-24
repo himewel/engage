@@ -7,6 +7,11 @@ while ! nc -z ${BROKER_HOSTNAME//\:/ }; do
     sleep 1
 done
 
+echo "Waiting hadoop to launch on ${HADOOP_HOSTNAME}..."
+while ! nc -z ${HADOOP_HOSTNAME//\:/ }; do
+    sleep 1
+done
+
 spark-submit \
     --class org.apache.spark.examples.SparkPi \
     --conf spark.ui.port=$SPARK_UI_PORT \
