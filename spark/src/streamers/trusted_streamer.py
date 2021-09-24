@@ -35,6 +35,7 @@ class TrustedStreamer(AbstractStreamer):
             .withColumn("ranking", row_number().over(window))
             .where(col("ranking") == 1)
             .drop("ranking")
+            .coalesce(1)
             .write.format("parquet")
             .mode("overwrite")
             .save(path=f"/trusted/{self.table_name}")
@@ -44,22 +45,17 @@ class TrustedStreamer(AbstractStreamer):
         spark = self.get_spark()
 
         schema_fields = self.schema.get_raw_schema()
-        try:
-            df = spark.readStream.format("parquet").load(
-                path=f"/raw/{self.topic_name}",
-                schema=StructType(schema_fields),
-            )
-        except AnalysisException:
-            sleep(30)
-            df = spark.readStream.format("parquet").load(
-                path=f"/raw/{self.topic_name}",
-                schema=StructType(schema_fields),
-            )
+        path = f"/raw/{self.topic_name}"
+        schema = StructType(schema_fields)
+
+        df = self.read_dataframe_with_delay(spark.readStream, path, schema)
 
         process = (
             df.writeStream.queryName(f"trusted_{self.table_name}")
             .foreachBatch(self.upsert)
-            .option("checkpointLocation", f"/checkpoint/trusted/{self.table_name}")
+            .option(
+                "checkpointLocation", f"file:///checkpoint/trusted/{self.table_name}"
+            )
             .start()
         )
 

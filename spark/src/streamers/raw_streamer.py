@@ -34,10 +34,11 @@ class RawStreamer(AbstractStreamer):
                 column, from_unixtime(col(column) / 1000).cast("timestamp")
             )
 
-        process = df.writeStream.queryName(f"raw_{self.topic_name}").start(
-            path=f"/raw/{self.topic_name}",
-            checkpointLocation=f"/checkpoint/raw/{self.topic_name}",
-            mode="append",
+        process = (
+            df.coalesce(1)
+            .writeStream.queryName(f"raw_{self.topic_name}")
+            .option("checkpointLocation", f"file:///checkpoint/raw/{self.topic_name}")
+            .start(path=f"/raw/{self.topic_name}")
         )
 
         return process
