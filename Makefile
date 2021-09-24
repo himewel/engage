@@ -32,3 +32,11 @@ stop:
 		--file docker-compose.debezium.yaml \
 		--file docker-compose.streaming.yaml \
 		stop
+
+.PHONY: reset
+reset:
+	docker-compose \
+		--file docker-compose.storage.yaml \
+		--file docker-compose.debezium.yaml \
+		--file docker-compose.streaming.yaml \
+		down --volumes --remove-orphans
