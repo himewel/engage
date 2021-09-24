@@ -3,48 +3,52 @@ networks:
         name: engage_network
         external: TRUE
 
+x-external-services: &external-services
+    BROKER_HOSTNAME: dbz-kafka:9092
+    HADOOP_HOSTNAME: hadoop:8020
+
+x-volumes-to-mount: &volumes-to-mount
+    - ./spark/src:/opt/spark/src
+    - ./config:/etc/hadoop
+    - checkpoint:/checkpoint
+
 services:
     spark-raw-sink:
         build: spark
         command: src/streaming_factory.py raw_streamer
         environment:
-            BROKER_HOSTNAME: dbz-kafka:9092
+            <<: *external-services
             SPARK_UI_PORT: 4040
         ports:
             - 4040:4040
-        volumes:
-            - ./spark/src:/opt/spark/src
-            - ./config:/etc/hadoop
-            - checkpoint:/checkpoint
+        volumes: *volumes-to-mount
 
     spark-trusted-sink:
         build: spark
         command: src/streaming_factory.py trusted_streamer
+        depends_on:
+            - spark-raw-sink
         environment:
-            BROKER_HOSTNAME: dbz-kafka:9092
+            <<: *external-services
             SPARK_UI_PORT: 4041
         ports:
             - 4041:4041
-        volumes:
-            - ./spark/src:/opt/spark/src
-            - ./config:/etc/hadoop
-            - checkpoint:/checkpoint
+        volumes: *volumes-to-mount
 
     spark-groups-ranking:
         build: spark
         command: src/streaming_factory.py groups_streamer
+        depends_on:
+            - spark-raw-sink
+            - spark-trusted-sink
         environment:
-            BROKER_HOSTNAME: dbz-kafka:9092
+            <<: *external-services
             SPARK_UI_PORT: 4042
         ports:
             - 4042:4042
-        volumes:
-            - ./spark/src:/opt/spark/src
-            - ./config:/etc/hadoop
-            - checkpoint:/checkpoint
+        volumes: *volumes-to-mount
 
 volumes:
     checkpoint:
-        driver: local
 
 version: '3.8'
