@@ -15,6 +15,7 @@ services:
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
+            - checkpoint:/checkpoint
 
     spark-trusted-sink:
         build: spark
@@ -27,5 +28,23 @@ services:
         volumes:
             - ./spark/src:/opt/spark/src
             - ./config:/etc/hadoop
+            - checkpoint:/checkpoint
+
+    spark-groups-ranking:
+        build: spark
+        command: src/streaming_factory.py groups_streamer
+        environment:
+            BROKER_HOSTNAME: dbz-kafka:9092
+            SPARK_UI_PORT: 4042
+        ports:
+            - 4042:4042
+        volumes:
+            - ./spark/src:/opt/spark/src
+            - ./config:/etc/hadoop
+            - checkpoint:/checkpoint
+
+volumes:
+    checkpoint:
+        driver: local
 
 version: '3.8'
