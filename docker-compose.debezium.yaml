@@ -31,6 +31,8 @@ services:
                 connect.sqlserver:1:1
         ports:
             - 9092:9092
+        volumes:
+            - kafka-data:/var/lib/kafka/data
 
     dbz-startup:
         build: debezium/startup
@@ -44,6 +46,9 @@ services:
         image: debezium/zookeeper:1.6
         ports:
             - 2181:2181
+        volumes:
+            - zookeeper-data:/var/lib/zookeeper/data
+            - zookeeper-logs:/var/lib/zookeeper/log
 
     dbz-ui:
         depends_on:
@@ -53,5 +58,10 @@ services:
         image: debezium/debezium-ui:1.6
         ports:
             - 8080:8080
+
+volumes:
+    kafka-data:
+    zookeeper-data:
+    zookeeper-logs:
 
 version: '3.8'
