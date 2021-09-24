@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from time import sleep
 
 from pyspark import SparkContext, SQLContext
+from pyspark.sql.utils import AnalysisException
 
 from schemas import (
     ActivitiesSchema,
@@ -27,6 +29,14 @@ class AbstractStreamer(ABC):
 
     def create_factory():
         pass
+
+    def read_dataframe_with_delay(self, spark_read, path, schema):
+        try:
+            df = spark_read.format("parquet").load(path=path, schema=schema)
+        except AnalysisException:
+            sleep(30)
+            df = spark_read.format("parquet").load(path=path, schema=schema)
+        return df
 
     def get_spark(self):
         context = SparkContext.getOrCreate()
