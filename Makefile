@@ -40,3 +40,11 @@ reset:
 		--file docker-compose.debezium.yaml \
 		--file docker-compose.streaming.yaml \
 		down --volumes --remove-orphans
+
+.PHONY: build
+build:
+	docker-compose \
+		--file docker-compose.storage.yaml \
+		--file docker-compose.debezium.yaml \
+		--file docker-compose.streaming.yaml \
+		build
