@@ -2,22 +2,23 @@ SHELL:=/bin/bash
 
 .PHONY: init
 init:
-	docker network create engage_network
+	docker network inspect engage_network --format {{.Id}} 2>/dev/null \
+		|| docker network create engage_network
 
 .PHONY: storage
-storage:
+storage: init
 	docker-compose \
 		--file docker-compose.storage.yaml \
 		up --detach
 
 .PHONY: debezium
-debezium:
+debezium: init
 	docker-compose \
 		--file docker-compose.debezium.yaml \
 		up --detach
 
 .PHONY: connect
-streaming:
+streaming: init
 	docker-compose \
 		--file docker-compose.streaming.yaml \
 		up --detach
@@ -40,6 +41,7 @@ reset:
 		--file docker-compose.debezium.yaml \
 		--file docker-compose.streaming.yaml \
 		down --volumes --remove-orphans
+	docker network rm engage_network
 
 .PHONY: build
 build:
