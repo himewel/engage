@@ -33,7 +33,8 @@ class AbstractStreamer(ABC):
         pass
 
     def read_dataframe_with_delay(self, spark_read, path, schema):
-        while not fsspec.open_files(f"hdfs://{path}"):
+        fs = fsspec.filesystem("hdfs")
+        while not fs.exists(path):
             sleep(10)
 
         df = spark_read.format("parquet").load(path=path, schema=schema)
