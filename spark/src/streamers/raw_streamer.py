@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, from_unixtime
+from pyspark.sql.functions import col, concat, from_unixtime
 
 from . import AbstractStreamer
 
@@ -8,7 +8,23 @@ class RawStreamer(AbstractStreamer):
         super().__init__()
         self.broker_server = broker_server
         self.topic_name = topic_name
+        self.table_name = topic_name.split(".")[-1]
         self.schema = self.schema_classes[topic_name]
+
+    def multipleWriteFormats(self, batch_df, batch_id):
+        hdfs_process = (
+            batch_df.write.format("parquet")
+            .mode("append")
+            .save(f"/raw/{self.table_name}")
+        )
+        mongo_process = (
+            batch_df.write.format("mongo")
+            .mode("append")
+            .option("uri", "mongodb://root:root@mongodb")
+            .option("database", "engagedb")
+            .option("collection", self.table_name)
+            .save()
+        )
 
     def get_process(self):
         spark = self.get_spark()
@@ -34,11 +50,17 @@ class RawStreamer(AbstractStreamer):
                 column, from_unixtime(col(column) / 1000).cast("timestamp")
             )
 
+        column_id = [col(column) for column in self.schema.get_columnid()]
+        if len(column_id) == 1:
+            df = df.withColumn("_id", *column_id)
+        else:
+            df = df.withColumn("_id", concat(*column_id, col(timestamp)))
+
         process = (
-            df.coalesce(1)
-            .writeStream.queryName(f"raw_{self.topic_name}")
+            df.writeStream.queryName(f"raw_{self.topic_name}")
+            .foreachBatch(self.multipleWriteFormats)
             .option("checkpointLocation", f"file:///checkpoint/raw/{self.topic_name}")
-            .start(path=f"/raw/{self.topic_name}")
+            .start()
         )
 
         return process
