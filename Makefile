@@ -2,7 +2,7 @@ SHELL:=/bin/bash
 
 .PHONY: init
 init:
-	docker network inspect engage_network --format {{.Id}} 2>/dev/null \
+	@docker network inspect engage_network --format {{.Id}} 2>/dev/null \
 		|| docker network create engage_network
 
 .PHONY: storage
