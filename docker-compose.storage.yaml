@@ -51,21 +51,45 @@ services:
             timeout: 90s
 
     mongodb:
+        command: --replSet debezium --keyFile /mongo-storage/keyfile
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: root
-        image: mongo:5.0.2
         healthcheck:
             test: |
                 mongo --eval 'db.runCommand("ping").ok' \
                     localhost:27017/test --quiet
+        image: mongo:5.0.2
         ports:
             - 27017:27017
+        volumes:
+            - mongo-storage:/mongo-storage
+            - ./mongo/scripts/wait-for-keyfile.sh:/docker-entrypoint-initdb.d/wait-for-keyfile.sh
+
+    mongodb-rs:
+        command: --replSet debezium --keyFile /mongo-storage/keyfile
+        healthcheck:
+            test: |
+                mongo --eval 'db.runCommand("ping").ok' \
+                    localhost:27017/test --quiet
+        image: mongo:5.0.2
+        volumes:
+            - mongo-storage:/mongo-storage
+            - ./mongo/scripts/wait-for-keyfile.sh:/docker-entrypoint-initdb.d/wait-for-keyfile.sh
+
+    mongodb-startup:
+        build: mongo
+        depends_on:
+            - mongodb
+            - mongodb-rs
+        volumes:
+            - mongo-storage:/mongo-storage
 
     mongodb-ui:
         image: mongo-express
         depends_on:
             - mongodb
+            - mongodb-rs
         environment:
             ME_CONFIG_MONGODB_SERVER: mongodb
             ME_CONFIG_MONGODB_PORT: 27017
@@ -82,5 +106,8 @@ services:
             test: redis-cli ping || exit 1
         ports:
             - 6379:6379
+
+volumes:
+    mongo-storage:
 
 version: '3.8'
