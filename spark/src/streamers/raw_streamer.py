@@ -20,7 +20,7 @@ class RawStreamer(AbstractStreamer):
         mongo_process = (
             batch_df.write.format("mongo")
             .mode("append")
-            .option("uri", "mongodb://root:root@mongodb")
+            .option("uri", "mongodb://debezium:debezium@mongodb:27017")
             .option("database", "engagedb")
             .option("collection", self.table_name)
             .save()
@@ -54,7 +54,7 @@ class RawStreamer(AbstractStreamer):
         if len(column_id) == 1:
             df = df.withColumn("_id", *column_id)
         else:
-            df = df.withColumn("_id", concat(*column_id, col(timestamp)))
+            df = df.withColumn("_id", concat(*column_id, col("timestamp").cast("long")))
 
         process = (
             df.writeStream.queryName(f"raw_{self.topic_name}")
