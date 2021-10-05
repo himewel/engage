@@ -5,28 +5,18 @@ networks:
 
 services:
     mssql:
+        build: mssql
         environment:
             ACCEPT_EULA: Y
             SA_PASSWORD: SuperP4ssword!
+            CSV_PATH: /home/mssql/output/csv
         healthcheck:
             test: |
                 /opt/mssql-tools/bin/sqlcmd \
                     -S localhost -U sa -P "$$SA_PASSWORD" \
                     -Q "SELECT 1" || exit 1
-        image: mcr.microsoft.com/mssql/server:2019-CU12-ubuntu-20.04
         ports:
             - 1433:1433
-
-    mssql-startup:
-        build: mssql
-        depends_on:
-            - mssql
-        environment:
-            MSSQL_HOST: mssql
-            MSSQL_PORT: 1433
-            MSSQL_USER: sa
-            MSSQL_PASSWD: SuperP4ssword!
-            CSV_PATH: /home/mssql/output/csv
 
     hadoop:
         build: hadoop

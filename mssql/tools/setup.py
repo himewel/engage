@@ -157,9 +157,9 @@ def ingest_data():
             /opt/mssql-tools/bin/bcp \
                  engagedb.dbo.{key} in {csv_path}/{key}.csv \
                  -q -c -t , \
-                 -S ${{MSSQL_HOST}} \
-                 -U ${{MSSQL_USER}} \
-                 -P ${{MSSQL_PASSWD}}
+                 -S localhost \
+                 -U sa \
+                 -P ${{SA_PASSWORD}}
         """
 
         process = subprocess.Popen(bash_command, shell=True, stdout=subprocess.PIPE)

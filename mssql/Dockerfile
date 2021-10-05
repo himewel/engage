@@ -19,6 +19,8 @@ COPY requirements.txt .
 
 RUN pip3 install --no-cache-dir --requirement ./requirements.txt
 
-COPY tools ./tools
+COPY ./tools ./tools
+COPY ./docker-entrypoint.sh ./docker-entrypoint.sh
 
-CMD [ "bash", "/home/mssql/tools/setup.sh"]
+ENTRYPOINT [ "/bin/bash" ]
+CMD [ "./docker-entrypoint.sh"]

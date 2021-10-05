@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 
-hostname=$MSSQL_HOST
-port=$MSSQL_PORT
-username=$MSSQL_USER
-password=$MSSQL_PASSWD
-
-echo "Waiting MSSQL to be up on ${hostname}:${port}..."
-while ! nc -z ${hostname} ${port}; do
+echo "Waiting MSSQL to be up on localhost:1433..."
+while ! nc -z localhost 1433; do
     sleep 10
 done
 
@@ -14,9 +9,9 @@ sleep 5
 
 echo "Creating tables..."
 /opt/mssql-tools/bin/sqlcmd \
-    -S ${hostname} \
-    -U ${username} \
-    -P ${password} \
+    -S localhost \
+    -U sa \
+    -P ${SA_PASSWORD} \
     -h -1 \
     -e \
     -i /home/mssql/tools/create_tables.sql
