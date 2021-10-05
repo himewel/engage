@@ -16,7 +16,7 @@ x-volumes-to-mount: &volumes-to-mount
     - checkpoint:/checkpoint
 
 services:
-    spark-raw-sink:
+    spark-raw-streamer:
         build: spark
         command: src/streaming_factory.py raw_streamer
         environment:
@@ -24,6 +24,14 @@ services:
             SPARK_UI_PORT: 4040
         ports:
             - 4040:4040
+        volumes: *volumes-to-mount
+
+    spark-context-streamer:
+        build: spark
+        command: src/streaming_factory.py context_streamer
+        entrypoint: /bin/bash ./scripts/python-start.sh
+        environment:
+            <<: *shared-env
         volumes: *volumes-to-mount
 
 volumes:

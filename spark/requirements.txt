@@ -1,3 +1,5 @@
 pyspark==3.1.2
 fsspec==2021.9.0
 pyarrow==5.0.0
+kafka-python==2.0.2
+pymongo==3.12.0
