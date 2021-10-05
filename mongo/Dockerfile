@@ -1,7 +1,7 @@
-FROM mongo:5.0.2
+FROM mongo:4.2
 
 COPY scripts ./scripts
 
-RUN mkdir -p /mongo-storage
+RUN mkdir -p /mongo-storage /var/log/mongodb
 
-CMD [ "bash", "./scripts/wait-for-replica.sh"]
+ENTRYPOINT [ "/bin/bash", "./scripts/init-replica.sh" ]

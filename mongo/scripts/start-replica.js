@@ -1,19 +1,12 @@
 let rst = {
-    "_id": "debezium",
+    "_id": "rs0",
     "members": [
         {
             "_id": 0,
-            "host": "mongodb:27017",
-            "priority": 2
-        },
-        {
-            "_id": 1,
-            "host": "mongodb-rs:27017",
-            "priority": 1
+            "host": "mongodb:27017"
         }
     ]
 }
 
-rs.initiate(rst, { force: true });
-rs.conf();
-rs.printSecondaryReplicationInfo();
+rs.initiate(rst);
+rs.status();
