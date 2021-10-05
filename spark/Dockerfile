@@ -8,8 +8,8 @@ ENV SPARK_NO_DAEMONIZE TRUE
 
 ENV PATH "${PATH}:${JAVA_HOME}/bin:${SPARK_HOME}/bin:${SPARK_HOME}/sbin"
 ENV PATH "${PATH}:${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin"
+ENV PATH "${PATH}:/home/spark/.local/bin"
 ENV PYTHONPATH "${SPARK_HOME}/python:${PYTHONPATH}"
-
 
 RUN mkdir -p /usr/share/man/man1 \
     && apt-get update \
@@ -34,12 +34,12 @@ RUN wget -q https://ftp.unicamp.br/pub/apache/spark/spark-3.1.2/spark-3.1.2-bin-
 
 WORKDIR ${SPARK_HOME}
 
-COPY start.sh ./start.sh
+COPY scripts ./scripts
 
 RUN useradd -m spark \
     && mkdir -p /raw /checkpoint /trusted /refined \
     && chown spark /raw /checkpoint /trusted /refined \
-    && chmod +x ./start.sh \
+    && chmod +x ./scripts/*.sh \
     && echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SPARK_HOME}/conf/spark-env.sh
 
 USER spark
@@ -53,4 +53,4 @@ RUN pip3 install --no-cache-dir --requirement ./requirements.txt \
         ./spark_packages.py \
     && rm -rf ./install_packages.py
 
-ENTRYPOINT [ "/bin/bash", "./start.sh" ]
+ENTRYPOINT [ "/bin/bash", "./scripts/spark-start.sh" ]
