@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, concat, from_unixtime
+from pyspark.sql.functions import col, concat, count, from_unixtime
 
 from . import AbstractStreamer
 
@@ -23,6 +23,14 @@ class RawStreamer(AbstractStreamer):
             .option("uri", "mongodb://debezium:debezium@mongodb:27017")
             .option("database", "engagedb")
             .option("collection", self.table_name)
+            .save()
+        )
+
+        df = batch_df.select(count(col("*")).cast("string").alias("value"))
+        kafka_process = (
+            df.write.format("kafka")
+            .option("kafka.bootstrap.servers", self.broker_server)
+            .option("topic", f"spark.{self.table_name}")
             .save()
         )
 
