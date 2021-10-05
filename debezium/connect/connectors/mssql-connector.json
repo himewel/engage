@@ -6,8 +6,8 @@
         "database.port": "1433",
         "database.user": "sa",
         "database.password": "SuperP4ssword!",
+        "database.server.name": "mssql.engagedb",
         "database.dbname": "engagedb",
-        "database.server.name": "engagedb",
         "table.include.list": "dbo.groups,dbo.users,dbo.rounds,dbo.activities,dbo.answers",
         "database.history.kafka.bootstrap.servers": "dbz-kafka:9092",
         "database.history.kafka.topic": "connect.sqlserver"

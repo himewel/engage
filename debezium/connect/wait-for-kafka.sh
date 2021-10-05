@@ -5,4 +5,5 @@ while ! nc -z ${BOOTSTRAP_SERVERS//\:/ }; do
     sleep 1
 done
 
-bash /docker-entrypoint.sh start
+bash $@ &
+/docker-entrypoint.sh start

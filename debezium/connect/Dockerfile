@@ -8,6 +8,7 @@ RUN yum install -y nc \
 USER kafka
 
 COPY ./wait-for-kafka.sh /
+COPY ./create-connector.sh /
+COPY ./connectors /connectors
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["/wait-for-kafka.sh"]
+ENTRYPOINT [ "/bin/bash", "/wait-for-kafka.sh" ]

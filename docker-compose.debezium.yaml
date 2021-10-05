@@ -6,6 +6,7 @@ networks:
 services:
     dbz-connect:
         build: debezium/connect
+        command: /create-connector.sh
         depends_on:
             - dbz-kafka
             - dbz-zookeeper
@@ -33,14 +34,6 @@ services:
             - 9092:9092
         volumes:
             - kafka-data:/var/lib/kafka/data
-
-    dbz-startup:
-        build: debezium/startup
-        depends_on:
-            - dbz-connect
-        environment:
-            DBZ_SOURCE: mssql:1433
-            DBZ_CONNECT: dbz-connect:8083
 
     dbz-zookeeper:
         image: debezium/zookeeper:1.6
