@@ -17,10 +17,12 @@ class RawStreamer(AbstractStreamer):
             .mode("append")
             .save(f"/raw/{self.table_name}")
         )
+
         mongo_process = (
             batch_df.write.format("mongo")
             .mode("append")
             .option("uri", "mongodb://debezium:debezium@mongodb:27017")
+            .option("replaceDocument", "true")
             .option("database", "engagedb")
             .option("collection", self.table_name)
             .save()
@@ -40,7 +42,7 @@ class RawStreamer(AbstractStreamer):
         df = (
             spark.readStream.format("kafka")
             .option("kafka.bootstrap.servers", self.broker_server)
-            .option("subscribe", self.topic_name)
+            .option("subscribe", f"mssql.{self.topic_name}")
             .option("startingOffsets", "earliest")
             .load()
         )
