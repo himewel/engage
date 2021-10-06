@@ -3,14 +3,15 @@ import logging
 from collections import OrderedDict
 from datetime import datetime
 
-from kafka import KafkaConsumer
+from kafka import KafkaConsumer, KafkaProducer
 from pymongo import MongoClient
 
 
 class ContextStreamer:
-    def __init__(self, broker_server, topic_name):
+    def __init__(self, broker_server, linstening_topic_name, speaking_topic_name):
         self.broker_server = broker_server
-        self.topic_name = topic_name
+        self.linstening_topic_name = linstening_topic_name
+        self.speaking_topic_name = speaking_topic_name
 
     def start_poll(self):
         logging.info("Creating kafka consumer")
@@ -18,7 +19,7 @@ class ContextStreamer:
             bootstrap_servers=self.broker_server,
             auto_offset_reset="earliest",
         )
-        consumer.subscribe(topics=[self.topic_name])
+        consumer.subscribe(topics=[self.linstening_topic_name])
 
         while True:
             message_pack = consumer.poll(timeout_ms=500)
@@ -34,6 +35,7 @@ class ContextStreamer:
                     logging.info(f"Value: {message.value}")
 
             self.update_mongo()
+            self.send_event()
 
     def update_mongo(self):
         mongo = MongoClient("mongodb://debezium:debezium@mongodb:27017")
@@ -52,7 +54,17 @@ class ContextStreamer:
             logging.info(f"Applying {file} aggregation...")
             db.aggregate(pipeline)
 
+    def send_event(self):
+        producer = KafkaProducer(bootstrap_servers=self.broker_server)
+        producer.send(topic=self.speaking_topic_name, value=b"Fresh aggregations")
+
     def create_factory(broker_server):
-        topic_name = "spark.answers"
-        streamer = ContextStreamer(broker_server, topic_name)
+        linstening_topic_name = "spark.answers"
+        speaking_topic_name = "mongo.scores"
+
+        streamer = ContextStreamer(
+            broker_server=broker_server,
+            linstening_topic_name=linstening_topic_name,
+            speaking_topic_name=speaking_topic_name,
+        )
         streamer.start_poll()
