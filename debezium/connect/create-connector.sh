@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-echo "Waiting 20 seconds before startup..."
-sleep 20
+echo "Waiting 30 seconds before startup..."
+sleep 30
 
 echo "Waiting DBZ_CONNECT to launch on ${HOSTNAME}:8083..."
 while ! nc -z $HOSTNAME 8083; do
