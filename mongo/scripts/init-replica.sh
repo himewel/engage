@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 
-mongod --bind_ip_all --fork --logpath /var/log/mongodb/mongod.log $@
+if [ ! -e "/keyfile" ]; then
+    echo "Creating keyfile in /mongo-storage..."
+    openssl rand -base64 741 >> /keyfile
+    chmod 0400 /keyfile
+    chown mongodb /keyfile
+else
+    echo "Keyfile already exists"
+fi
+
+mongod \
+    --bind_ip_all \
+    --fork \
+    --logpath /var/log/mongodb/mongod.log \
+    --keyFile /keyfile \
+    $@
 
 cd ./scripts
 
