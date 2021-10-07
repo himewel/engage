@@ -4,7 +4,7 @@
             "from": "roundScores",
             "localField": "userId",
             "foreignField": "_id.userId",
-            "as": "roundScores"
+            "as": "round"
         }
     },
     {
