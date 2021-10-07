@@ -2,7 +2,7 @@ import os
 import logging
 from sys import argv
 
-from streamers import RawStreamer, ContextStreamer
+from streamers import CacheStreamer, ContextStreamer, RawStreamer
 
 broker_server = os.getenv("BROKER_HOSTNAME")
 
@@ -15,3 +15,5 @@ if argv[1] == "raw_streamer":
     RawStreamer.create_factory(broker_server)
 elif argv[1] == "context_streamer":
     ContextStreamer.create_factory(broker_server)
+elif argv[1] == "cache_streamer":
+    CacheStreamer.create_factory(broker_server)

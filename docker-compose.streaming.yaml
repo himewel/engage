@@ -34,6 +34,14 @@ services:
             <<: *shared-env
         volumes: *volumes-to-mount
 
+    spark-cache-streamer:
+        build: spark
+        command: src/streaming_factory.py cache_streamer
+        entrypoint: /bin/bash ./scripts/python-start.sh
+        environment:
+            <<: *shared-env
+        volumes: *volumes-to-mount
+
 volumes:
     checkpoint:
 
