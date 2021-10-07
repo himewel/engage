@@ -67,3 +67,9 @@ A spark streaming job is triggered to each topic from SQL Server CDC and extract
 </p>
 
 The second layer runs only when the first layer insert new data and trigger a Kafka event (spark.answers). This layer is responsible to calculate the rank aggregations in MongoDB. To do it, some auxiliar collections are merged running lookup and group aggregations. The third layer also runs oriented by Kafka events (mongo.scores). In this layer, the aggregations created in the second layer are collected and transformed to be available in Redis.
+
+## User interface endpoints
+
+- Hadoop WebHDFS: http://localhost:9870
+- Kafka Control Center: http://localhost:9021
+- Spark (raw jobs): http://localhost:4040
