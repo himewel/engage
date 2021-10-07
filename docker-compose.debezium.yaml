@@ -43,14 +43,15 @@ services:
             - zookeeper-data:/var/lib/zookeeper/data
             - zookeeper-logs:/var/lib/zookeeper/log
 
-    dbz-ui:
-        depends_on:
-            - dbz-connect
+    ctrl-center:
+        image: confluentinc/cp-enterprise-control-center
         environment:
-            KAFKA_CONNECT_URI: http://dbz-connect:8083
-        image: debezium/debezium-ui:1.6
+            CONTROL_CENTER_BOOTSTRAP_SERVERS: dbz-kafka:9092
+            CONTROL_CENTER_CONNECT_CLUSTER: http://dbz-connect:8083
+            CONTROL_CENTER_REPLICATION_FACTOR: 1
+            CONFLUENT_METRICS_TOPIC_REPLICATION: 1
         ports:
-            - 8080:8080
+            - 9021:9021
 
 volumes:
     kafka-data:
