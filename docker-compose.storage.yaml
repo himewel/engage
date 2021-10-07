@@ -57,8 +57,8 @@ services:
         environment:
             ME_CONFIG_MONGODB_SERVER: mongodb
             ME_CONFIG_MONGODB_PORT: 27017
-            ME_CONFIG_MONGODB_AUTH_USERNAME: admin
-            ME_CONFIG_MONGODB_AUTH_PASSWORD: admin
+            ME_CONFIG_MONGODB_AUTH_USERNAME: debezium
+            ME_CONFIG_MONGODB_AUTH_PASSWORD: debezium
         healthcheck:
             test: wget --spider localhost:8081 || exit 1
         ports:
