@@ -70,11 +70,25 @@
         }
     },
     {
+        "$setWindowFields": {
+            "partitionBy": "$_id.roundId",
+            "sortBy": {
+                "roundScore": -1
+            },
+            "output": {
+                "rank": {
+                    "$rank": {}
+                }
+            }
+        }
+    },
+    {
         "$merge":{
             "into":"roundScores",
             "on":[
                 "_id"
-            ]
+            ],
+            "whenMatched": "replace"
         }
     }
 ]

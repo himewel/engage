@@ -1,11 +1,23 @@
 [
     {
-        "$group":{
-            "_id":{
-                "groupId":"$_id.groupId"
+        "$group": {
+            "_id": {
+                "groupId": "$_id.groupId"
             },
-            "groupScore":{
-                "$sum":"$roundScores.roundScore"
+            "groupScore": {
+                "$sum": "$roundScore"
+            }
+        }
+    },
+    {
+        "$setWindowFields": {
+            "sortBy": {
+                "groupScore": -1
+            },
+            "output": {
+                "rank": {
+                    "$rank": {}
+                }
             }
         }
     },
@@ -14,7 +26,8 @@
             "into":"groupScores",
             "on":[
                 "_id"
-            ]
+            ],
+            "whenMatched": "replace"
         }
     }
 ]

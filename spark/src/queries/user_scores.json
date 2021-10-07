@@ -1,49 +1,64 @@
 [
     {
-        "$lookup":{
-            "from":"roundScores",
-            "localField":"userId",
-            "foreignField":"_id.userId",
-            "as":"roundScores"
+        "$lookup": {
+            "from": "roundScores",
+            "localField": "userId",
+            "foreignField": "_id.userId",
+            "as": "roundScores"
         }
     },
     {
-        "$unwind":{
-            "path":"$roundScores"
+        "$unwind": {
+            "path": "$round"
         }
     },
     {
-        "$lookup":{
-            "from":"groups",
-            "localField":"groupId",
+        "$lookup": {
+            "from": "groups",
+            "localField": "groupId",
             "foreignField":"groupId",
-            "as":"groups"
+            "as": "groups"
         }
     },
     {
-        "$unwind":{
-            "path":"$groups"
+        "$unwind": {
+            "path": "$groups"
         }
     },
     {
-        "$project":{
-            "_id":{
-                "userId":"$roundScores._id.userId",
-                "roundId":"$roundScores._id.roundId",
-                "groupId":"$groupId"
+        "$project": {
+            "_id": {
+                "userId": "$round._id.userId",
+                "roundId": "$round._id.roundId",
+                "groupId": "$groupId"
             },
-            "groupName":"$groups.groupName",
-            "userName":"$userName",
-            "image":"$image",
-            "roundScores":"$roundScores"
+            "groupName": "$groups.groupName",
+            "userName": "$userName",
+            "image": "$image",
+            "round": "$round",
+            "roundScore": "$round.roundScore"
         }
     },
     {
-        "$merge":{
-            "into":"userScores",
-            "on":[
+        "$setWindowFields": {
+            "partitionBy": "$_id.roundId",
+            "sortBy": {
+                "roundScore": -1
+            },
+            "output": {
+                "rank": {
+                    "$rank": {}
+                }
+            }
+        }
+    },
+    {
+        "$merge": {
+            "into": "userScores",
+            "on": [
                 "_id"
-            ]
+            ],
+            "whenMatched": "replace"
         }
     }
 ]

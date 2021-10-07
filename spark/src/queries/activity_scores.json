@@ -46,7 +46,8 @@
             "into":"activityScores",
             "on":[
                 "_id"
-            ]
+            ],
+            "whenMatched": "replace"
         }
     }
 ]
