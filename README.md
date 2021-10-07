@@ -15,7 +15,7 @@
 This project implements a NoSQL strategy to optimize queries executed on a SQL Server. To do it, the presented architecture was built. A rest API is available as a data source to create our SQL Server replication. The NoSQL databases are populated with data extracted from the SQL Server with Debezium and structured with Spark. In the end, MongoDB is used as main database for the query executions and Redis serve as cache to store the main results. In short:
 
 - Debezium: kafka based solution for CDC monitoring from SQL Server;
-- Hadoop: permanent data solution, used to store a data lake;
+- Hadoop: long term data solution, used to append data in parquet format;
 - MongoDB: main NoSQL storage for the solution;
 - Redis: in memory database used to cache the main query results from MongoDB;
 - Spark: used to stream data from Debezium, transform and ingest data in the leafs: Hadoop, MongoDB and Redis;
@@ -57,3 +57,13 @@ make all
 # to stop them
 make stop
 ```
+
+## Data flow
+
+A spark streaming job is triggered to each topic from SQL Server CDC and extract the data to be inserted in hdfs and MongoDB. In this layer, the data inserts occurs as the following: hdfs only append the data extracted in hadoop partitioned by extraction time; as MongoDB replace documents with same \_id, all the rows from SQL Server are upserted.
+
+<p align="center">
+<img alt="Dataflow" src="./docs/dataflow.png"/>
+</p>
+
+The second layer runs only when the first layer insert new data and trigger a Kafka event (spark.answers). This layer is responsible to calculate the rank aggregations in MongoDB. To do it, some auxiliar collections are merged running lookup and group aggregations. The third layer also runs oriented by Kafka events (mongo.scores). In this layer, the aggregations created in the second layer are collected and transformed to be available in Redis.
