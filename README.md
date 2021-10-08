@@ -73,3 +73,21 @@ The second layer runs only when the first layer insert new data and trigger a Ka
 - Hadoop WebHDFS: http://localhost:9870
 - Kafka Control Center: http://localhost:9021
 - Spark (raw jobs): http://localhost:4040
+
+## Query profiling
+
+To monitor the query execution times to generate the ranking queries, you can run `make profile`. The profiling script runs 10.000 interactions in each database SQL Server, MongoDB and Redis requesting userScores data. The output shows the average execution time for each database in **microseconds**:
+
+```shell
+$ make profile
+docker run \
+        --interactive \
+        --name engage_profiler \
+        --network engage_network \
+        --tty \
+        --rm \
+        engage_profiler
+mssql 4997.1346
+mongo 2731.4021
+redis 868.4534
+```
