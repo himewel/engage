@@ -3,44 +3,39 @@ networks:
         name: engage_network
         external: TRUE
 
-x-shared-env: &shared-env
-    BROKER_HOSTNAME: dbz-kafka:9092
-    HADOOP_HOSTNAME: hadoop:8020
-    SPARK_NUM_EXECUTOR: 4
-    SPARK_EXECUTOR_CORES: 1
-    SPARK_EXECUTOR_MEMORY: 16GB
-
-x-volumes-to-mount: &volumes-to-mount
-    - ./spark/src:/opt/spark/src
-    - ./config:/etc/hadoop
-    - checkpoint:/checkpoint
-
 services:
     spark-raw-streamer:
         build: spark
         command: src/streaming_factory.py raw_streamer
         environment:
-            <<: *shared-env
+            BROKER_HOSTNAME: dbz-kafka:9092
+            HADOOP_HOSTNAME: hadoop:8020
+            SPARK_NUM_EXECUTOR: 4
+            SPARK_EXECUTOR_CORES: 1
+            SPARK_EXECUTOR_MEMORY: 16GB
             SPARK_UI_PORT: 4040
         ports:
             - 4040:4040
-        volumes: *volumes-to-mount
+        volumes:
+            - checkpoint:/checkpoint
 
     spark-context-streamer:
         build: spark
         command: src/streaming_factory.py context_streamer
         entrypoint: /bin/bash ./scripts/python-start.sh
         environment:
-            <<: *shared-env
-        volumes: *volumes-to-mount
+            BROKER_HOSTNAME: dbz-kafka:9092
+        volumes:
+            - checkpoint:/checkpoint
 
     spark-cache-streamer:
         build: spark
         command: src/streaming_factory.py cache_streamer
         entrypoint: /bin/bash ./scripts/python-start.sh
         environment:
-            <<: *shared-env
-        volumes: *volumes-to-mount
+            BROKER_HOSTNAME: dbz-kafka:9092
+        volumes:
+            - checkpoint:/checkpoint
 
 volumes:
     checkpoint:

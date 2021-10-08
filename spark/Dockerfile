@@ -53,4 +53,7 @@ RUN pip3 install --no-cache-dir --requirement ./requirements.txt \
         ./spark_packages.py \
     && rm -rf ./install_packages.py
 
+COPY ./config ${HADOOP_CONF_DIR}
+COPY ./src ./src
+
 ENTRYPOINT [ "/bin/bash", "./scripts/spark-start.sh" ]
