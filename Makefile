@@ -50,3 +50,15 @@ build:
 		--file docker-compose.debezium.yaml \
 		--file docker-compose.streaming.yaml \
 		build
+	docker build ./profiler \
+	 	--tag engage_profiler
+
+.PHONY: profile
+profile:
+	docker run \
+		--interactive \
+		--name engage_profiler \
+		--network engage_network \
+		--tty \
+		--rm \
+		engage_profiler
