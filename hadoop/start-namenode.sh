@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 namenode_dir=$(ls -A /hadoop/dfs/name)
 if [[ ! -z "$namenode_dir" ]]; then
     echo "Directory is NOT empty!"

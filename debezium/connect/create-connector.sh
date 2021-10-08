@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 echo "Waiting 30 seconds before startup..."
 sleep 30
 

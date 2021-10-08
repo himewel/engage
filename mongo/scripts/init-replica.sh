@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [ ! -e "/keyfile" ]; then
     echo "Creating keyfile in /mongo-storage..."
     openssl rand -base64 741 >> /keyfile

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 echo "Waiting MSSQL to be up on localhost:1433..."
 while ! nc -z localhost 1433; do
     sleep 10
