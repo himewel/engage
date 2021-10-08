@@ -16,6 +16,8 @@ services:
             CONFIG_STORAGE_TOPIC: storage.config
             OFFSET_STORAGE_TOPIC: storage.offset
             STATUS_STORAGE_TOPIC: storage.status
+        healthcheck:
+            test: nc -z dbz-connect 8083
         ports:
             - 8083:8083
 
@@ -30,12 +32,16 @@ services:
                 storage.offset:1:1,\
                 storage.status:1:1,\
                 connect.sqlserver:1:1
+        healthcheck:
+            test: nc -z dbz-kafka 9092
         ports:
             - 9092:9092
         volumes:
             - kafka-data:/var/lib/kafka/data
 
     dbz-zookeeper:
+        healthcheck:
+            test: ./bin/zkServer.sh status
         image: debezium/zookeeper:1.6
         ports:
             - 2181:2181
@@ -44,12 +50,14 @@ services:
             - zookeeper-logs:/var/lib/zookeeper/log
 
     ctrl-center:
-        image: confluentinc/cp-enterprise-control-center
+        healthcheck:
+            test: nc -z ctrl-center 9021
         environment:
             CONTROL_CENTER_BOOTSTRAP_SERVERS: dbz-kafka:9092
             CONTROL_CENTER_CONNECT_CLUSTER: http://dbz-connect:8083
             CONTROL_CENTER_REPLICATION_FACTOR: 1
             CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+        image: confluentinc/cp-enterprise-control-center
         ports:
             - 9021:9021
 
