@@ -34,8 +34,11 @@ class ContextStreamer:
                     logging.info(f"Offset: {message.offset}")
                     logging.info(f"Value: {message.value}")
 
+            start_time = datetime.now()
             self.update_mongo()
-            self.send_event()
+            end_time = datetime.now()
+            execution_time = (end_time - start_time).microseconds
+            self.send_event(execution_time)
 
     def update_mongo(self):
         mongo = MongoClient("mongodb://debezium:debezium@mongodb:27017")
@@ -54,9 +57,13 @@ class ContextStreamer:
             logging.info(f"Applying {file} aggregation...")
             db.aggregate(pipeline)
 
-    def send_event(self):
+    def send_event(self, execution_time):
         producer = KafkaProducer(bootstrap_servers=self.broker_server)
-        producer.send(topic=self.speaking_topic_name, value=b"Fresh aggregations")
+        producer.send(
+            topic=self.speaking_topic_name,
+            key=b"execution_time",
+            value=bytes(str(execution_time), "utf-8"),
+        )
 
     def create_factory(broker_server):
         linstening_topic_name = "spark.answers"

@@ -34,8 +34,11 @@ class CacheStreamer:
                     logging.info(f"Offset: {message.offset}")
                     logging.info(f"Value: {message.value}")
 
+            start_time = datetime.now()
             self.migrate_mongo_to_redis()
-            self.send_event()
+            end_time = datetime.now()
+            execution_time = (end_time - start_time).microseconds
+            self.send_event(execution_time)
 
     def migrate_mongo_to_redis(self):
         logging.info("Getting mongodb client...")
@@ -45,7 +48,9 @@ class CacheStreamer:
         collection_list = ["userScores", "groupScores"]
         for collection in collection_list:
             logging.info(f"Deleting old values for {collection}...")
-            redis.delete(f"{collection}:*")
+            key_list = redis.keys(f"{collection}:*")
+            if key_list:
+                redis.delete(*key_list)
 
             logging.info(f"Searching for {collection} aggregation...")
             for document in mongo.engagedb[collection].find().limit(100):
@@ -60,9 +65,13 @@ class CacheStreamer:
                     )
                     redis.hset(name=id, key=key, value=field)
 
-    def send_event(self):
+    def send_event(self, execution_time):
         producer = KafkaProducer(bootstrap_servers=self.broker_server)
-        producer.send(topic=self.speaking_topic_name, value=b"Fresh aggregations")
+        producer.send(
+            topic=self.speaking_topic_name,
+            key=b"execution_time",
+            value=bytes(str(execution_time), "utf-8"),
+        )
 
     def get_documentid(self, collection, document):
         if collection == "userScores":
