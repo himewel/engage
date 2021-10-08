@@ -23,8 +23,6 @@ services:
         healthcheck:
             test: wget --spider localhost:9870 || exit 1
             timeout: 90s
-        volumes:
-            - ./config:/etc/hadoop
         ports:
             - 9870:9870
             - 8020:8020
@@ -34,8 +32,6 @@ services:
         command: hdfs datanode
         depends_on:
             - hadoop
-        volumes:
-            - ./config:/etc/hadoop
         healthcheck:
             test: wget --spider localhost:9864 || exit 1
             timeout: 90s
@@ -51,9 +47,9 @@ services:
             - 27017:27017
 
     redis:
-        image: redis:6.2.5-alpine
         healthcheck:
             test: redis-cli ping || exit 1
+        image: redis:6.2.5-alpine
         ports:
             - 6379:6379
 

@@ -29,6 +29,7 @@ WORKDIR ${HADOOP_HOME}
 USER hadoop
 
 COPY start-namenode.sh .
+COPY ./config ${HADOOP_CONF_DIR}
 
 ENTRYPOINT [ "bash" ]
 CMD ["./start-namenode.sh"]
