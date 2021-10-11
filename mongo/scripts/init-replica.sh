@@ -29,14 +29,19 @@ sleep 20
 
 echo "Starting replicas..."
 mongo localhost:27017/engagedb ./start-replica.js
-echo "Initiated replica set"
+echo "Replica set initiated"
 
-sleep 10
+if [ ! -e "./admin_created" ]; then
+    sleep 20
 
-echo "Creating admin user..."
-mongo localhost:27017/admin ./create-admin.js
+    echo "Creating admin user..."
+    mongo localhost:27017/admin ./create-admin.js
 
-echo "Granting roles to debezium user..."
-mongo -u admin -p admin localhost:27017/admin ./grant-roles.js
+    echo "Granting roles to debezium user..."
+    mongo -u admin -p admin localhost:27017/admin ./grant-roles.js
+
+    echo "Creating checkpoint file"
+    touch ./admin_created
+fi
 
 tail +1f /var/log/mongodb/mongod.log
