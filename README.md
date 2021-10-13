@@ -19,13 +19,44 @@ This project implements a NoSQL strategy to optimize queries executed on a SQL S
 - MongoDB: main NoSQL storage for the solution;
 - Redis: in memory database used to cache the main query results from MongoDB;
 - Spark: used to stream data from Debezium, transform and ingest data in the leafs: Hadoop, MongoDB and Redis;
-- SQL Server: data source where transactional data is stored;
+- SQL Server: data source where transactional data is stored.
+
+## Data flow
+
+A spark streaming job is triggered to each topic from SQL Server CDC and extract the data to be inserted in hdfs and MongoDB. In this layer, the data inserts occurs as the following: hdfs only append the data extracted in hadoop partitioned by extraction time; as MongoDB replace documents with same \_id, all the rows from SQL Server are upserted.
+
+<p align="center">
+<img alt="Dataflow" src="./docs/dataflow.png"/>
+</p>
+
+The second layer runs only when the first layer insert new data and trigger a Kafka event (spark.answers). This layer is responsible to calculate the rank aggregations in MongoDB. To do it, some auxiliar collections are merged running lookup and group aggregations. The third layer also runs oriented by Kafka events (mongo.scores). In this layer, the aggregations created in the second layer are collected and transformed to be available in Redis.
+
+To monitor the query execution times to generate the ranking queries, you can run `make profile`. The profiling script runs 10.000 interactions in each database SQL Server, MongoDB and Redis requesting userScores data. The output shows the average execution time for each database in **microseconds**:
+
+| Database   	| Type              	| Mean (µs) 	| Standard deviation (µs) 	|
+|------------	|-------------------	|-----------	|-------------------------	|
+| SQL Server 	| SQL               	|  5895.543 	|         1752.899        	|
+| MongoDB    	| NoSQL (documents) 	|  2832.174 	|         931.078         	|
+| Redis      	| NoSQL (key-value) 	|  895.669  	|         336.608         	|
+
+Furthermore, a latency of ~15s is added by the streaming processment running all the containers in a local environment. The sync jobs of aggregations and Redis takes a maximum of 2s to be triggered. So, the Redis cache should be refreshed in 19s and MongoDB collections at 17s.
+
+## Kafka topics
 
 In principle, our SQL Server replica is built as the following schema.
 
 <p align="center">
 <img alt="Schema" src="./docs/sqlserver-schema.png"/>
 </p>
+
+So, Debezium creates a topic to stream each one of the tables. A few other topics are created to held the communication between streaming jobs, like `mongo.scores`: it is used to trigger the sync between MongoDB and Redis aggregations. The following table presents this topics:
+
+| Topics | Source | Description |
+|---|---|---|
+| `mssql.engagedb.dbo.answers` `mssql.engagedb.dbo.activities` `mssql.engagedb.dbo.rounds` `mssql.engagedb.dbo.groups` `mssql.engagedb.dbo.users` | Debezium | Each event describes an operations of insert, update or delete in the database engagedb and schema dbo. |
+| `spark.answers` | Spark | Show the number of lines processed in a micro batch by Spark Streaming and ingested in MongoDB. When a event reaches this topic, a job is triggered to sync the data in MongoDB collections with ranking aggregations. |
+| `mongo.scores` | Kafka Python client | Presents the execution time to update the ranking aggregations in MongoDB. A job to sync the aggregations between MongoDB and Redis is triggered when a event reaches this topic. |
+| `redis.cache` | Kafka Python client | Presents the execution time to update the ranking aggregations copied to Redis. |
 
 ## How to start
 
@@ -58,36 +89,8 @@ make all
 make stop
 ```
 
-## Data flow
-
-A spark streaming job is triggered to each topic from SQL Server CDC and extract the data to be inserted in hdfs and MongoDB. In this layer, the data inserts occurs as the following: hdfs only append the data extracted in hadoop partitioned by extraction time; as MongoDB replace documents with same \_id, all the rows from SQL Server are upserted.
-
-<p align="center">
-<img alt="Dataflow" src="./docs/dataflow.png"/>
-</p>
-
-The second layer runs only when the first layer insert new data and trigger a Kafka event (spark.answers). This layer is responsible to calculate the rank aggregations in MongoDB. To do it, some auxiliar collections are merged running lookup and group aggregations. The third layer also runs oriented by Kafka events (mongo.scores). In this layer, the aggregations created in the second layer are collected and transformed to be available in Redis.
-
-## User interface endpoints
+### User interface endpoints
 
 - Hadoop WebHDFS: http://localhost:9870
 - Kafka Control Center: http://localhost:9021
 - Spark (raw jobs): http://localhost:4040
-
-## Query profiling
-
-To monitor the query execution times to generate the ranking queries, you can run `make profile`. The profiling script runs 10.000 interactions in each database SQL Server, MongoDB and Redis requesting userScores data. The output shows the average execution time for each database in **microseconds**:
-
-```shell
-$ make profile
-docker run \
-        --interactive \
-        --name engage_profiler \
-        --network engage_network \
-        --tty \
-        --rm \
-        engage_profiler
-mssql 4997.1346
-mongo 2731.4021
-redis 868.4534
-```
