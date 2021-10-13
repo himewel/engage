@@ -31,7 +31,7 @@ echo "Starting replicas..."
 mongo localhost:27017/engagedb ./start-replica.js
 echo "Replica set initiated"
 
-if [ ! -e "./admin_created" ]; then
+if [ ! -e "/MONGO_INITIATED" ]; then
     sleep 20
 
     echo "Creating admin user..."
@@ -41,7 +41,7 @@ if [ ! -e "./admin_created" ]; then
     mongo -u admin -p admin localhost:27017/admin ./grant-roles.js
 
     echo "Creating checkpoint file"
-    touch ./admin_created
+    touch /MONGO_INITIATED
 fi
 
 tail +1f /var/log/mongodb/mongod.log
