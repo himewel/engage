@@ -31,15 +31,15 @@ A spark streaming job is triggered to each topic from SQL Server CDC and extract
 
 The second layer runs only when the first layer insert new data and trigger a Kafka event (spark.answers). This layer is responsible to calculate the rank aggregations in MongoDB. To do it, some auxiliar collections are merged running lookup and group aggregations. The third layer also runs oriented by Kafka events (mongo.scores). In this layer, the aggregations created in the second layer are collected and transformed to be available in Redis.
 
-To monitor the query execution times to generate the ranking queries, you can run `make profile`. The profiling script runs 10.000 interactions in each database SQL Server, MongoDB and Redis requesting userScores data. The output shows the average execution time for each database in **microseconds**:
+To monitor the query execution times to generate the ranking queries, you can run `make profile`. The profiling script runs 10.000 interactions in each database SQL Server, MongoDB and Redis requesting userScores data. The output shows the average, standard deviation and gain compared to the SQL Server execution time for each database in **microseconds**:
 
-| Database   	| Type              	| Mean (µs) 	| Standard deviation (µs) 	|
-|------------	|-------------------	|-----------	|-------------------------	|
-| SQL Server 	| SQL               	|  5895.543 	|         1752.899        	|
-| MongoDB    	| NoSQL (documents) 	|  2832.174 	|         931.078         	|
-| Redis      	| NoSQL (key-value) 	|  895.669  	|         336.608         	|
+| Database   	| Type              	| Mean        	| Standard deviation       	| Gain    |
+|------------	|-------------------	|-----------	|-------------------------	|------   |
+| SQL Server 	| SQL               	|  5895.543 µs	|         1752.899 µs      	| -       |
+| MongoDB    	| NoSQL (documents) 	|  2832.174 µs	|         931.078 µs       	| 2.08x   |
+| Redis      	| NoSQL (key-value) 	|  895.669 µs 	|         336.608 µs       	| 3.16x   |
 
-Furthermore, a latency of ~15s is added by the streaming processment running all the containers in a local environment. The sync jobs of aggregations and Redis takes a maximum of 2s to be triggered. So, the Redis cache should be refreshed in 19s and MongoDB collections at 17s.
+Furthermore, a latency of ~15s is added by the streaming processment running all the containers in a local environment. The sync jobs of aggregations and Redis takes a maximum of 2s to be triggered. So, the Redis cache should be refreshed in 19s and MongoDB collections at 17s. All the profiling tests and execution time measurements were collected in a Intel Core i3 with 16GB RAM memory installed with Elementaty OS.
 
 ## Kafka topics
 
