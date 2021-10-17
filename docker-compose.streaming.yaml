@@ -25,8 +25,6 @@ services:
         entrypoint: /bin/bash ./scripts/python-start.sh
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
-        volumes:
-            - checkpoint:/checkpoint
 
     spark-cache-streamer:
         build: spark
@@ -34,8 +32,6 @@ services:
         entrypoint: /bin/bash ./scripts/python-start.sh
         environment:
             BROKER_HOSTNAME: dbz-kafka:9092
-        volumes:
-            - checkpoint:/checkpoint
 
 volumes:
     checkpoint:
