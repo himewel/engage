@@ -95,7 +95,10 @@ def run_mongo(mongo):
 
 
 def run_redis(redis):
-    redis.keys("userScores:*")
+    with redis.pipeline() as pipe:
+        for key in redis.keys("userScores:*"):
+            pipeline.hgetall(key)
+        pipeline.execute()
 
 
 if __name__ == '__main__':
